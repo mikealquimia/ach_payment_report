@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+        <data>
+
+                <record id="paper_cash_sale" model="report.paperformat">
+                        <field name="name">Movimiento de Caja</field>
+                        <field name="format">A1</field>
+                        <field name="orientation">Landscape</field>
+                </record>
+
+                <report 
+                        id="action_pdf_cash_sale"
+                        string="Movimiento de Caja"
+                        model="cash.sale" 
+                        report_type="qweb-pdf"
+                        file="ach_payment_report.payment_report" 
+                        name="ach_payment_report.payment_report"
+                        print_report_name="'Movimiento de Caja: %s' % (object.date)"
+                        />
+                
+        </data>
+</odoo>
