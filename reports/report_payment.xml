@@ -1,0 +1,373 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="payment_report">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="web.external_layout">
+                    <div class="page">
+                        <div class="oe_structure"/>
+                        <h2 class="text-center">
+                            Movimiento de Caja
+                        </h2>
+                        <h4 class="text-center">
+                            Sucursal: <span t-esc="o.company_id.name"/>, Fecha: <span t-esc="o.date"/>
+                        </h4>
+                        <div class="row">
+                            <div class="col-6">
+                                <h3>Ventas del <span t-esc="o.date"/></h3>
+                                <table class="table table-sm table-bordered">
+                                    <t t-set="sale_day_lines" t-value="o.sale_day_lines(o.date)"/>
+                                    <thead>
+                                        <tr style="background-color: #0b4564;">
+                                            <th style="font-size: 80%; color: white; vertical-align:middle; text-align:center"><strong>Orden</strong></th>
+                                            <th style="font-size: 80%; color: white; vertical-align:middle; text-align:center"><strong>Factura</strong></th>
+                                            <th style="font-size: 80%; color: white; vertical-align:middle; text-align:center"><strong>Cliente</strong></th>
+                                            <th style="font-size: 80%; color: white; vertical-align:middle; text-align:center"><strong>Venta</strong></th>
+                                            <th style="font-size: 80%; color: white; vertical-align:middle; text-align:center"><strong>Abono</strong></th>
+                                            <th style="font-size: 80%; color: white; vertical-align:middle; text-align:center"><strong>Saldo</strong></th>
+                                            <th style="font-size: 80%; color: white; vertical-align:middle; text-align:center"><strong>Ext/Ret</strong></th>
+                                            <th style="font-size: 80%; color: white; vertical-align:middle; text-align:center"><strong>Medio de Pago</strong></th>
+                                            <th style="font-size: 80%; color: white; vertical-align:middle; text-align:center"><strong>Fecha Med. Pago--</strong></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <t t-set="total_sale_amount" t-value="0"/>
+                                        <t t-set="total_sale_abono" t-value="0"/>
+                                        <t t-set="total_sale_residual" t-value="0"/>
+                                        <t t-set="total_sale_ext_ret" t-value="0"/>
+                                        <tr t-foreach="sale_day_lines" t-as="sale_line">
+                                            <td style="text-align:center;background-color:#E0E0E0;">
+                                                <span t-esc="sale_line['name']"/>
+                                            </td>
+                                            <td style="text-align:center;background-color:#E0E0E0;">
+                                                <span t-esc="sale_line['invoice']"/>
+                                            </td>
+                                            <td style="text-align:center;background-color:#E0E0E0;">
+                                                <span t-esc="sale_line['partner']"/>
+                                            </td>
+                                            <td style="text-align:right;background-color:#E0E0E0;">
+                                                <span t-esc="sale_line['amount']" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: o.company_id.currency_id}"/>
+                                                <t t-set="total_sale_amount" t-value="total_sale_amount+sale_line['amount']"/>
+                                            </td>
+                                            <td style="text-align:right;background-color:#E0E0E0;">
+                                                <span t-esc="sale_line['abono']" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: o.company_id.currency_id}"/>
+                                                <t t-set="total_sale_abono" t-value="total_sale_abono+sale_line['abono']"/>
+                                            </td>
+                                            <td style="text-align:right;background-color:#E0E0E0;color: red">
+                                                <span t-esc="sale_line['residual']" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: o.company_id.currency_id}"/>
+                                                <t t-set="total_sale_residual" t-value="total_sale_residual+sale_line['residual']"/>
+                                            </td>
+                                            <td style="text-align:right;background-color:#E0E0E0;">
+                                                <span t-esc="sale_line['ext_ret']" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: o.company_id.currency_id}"/>
+                                                <t t-set="total_sale_ext_ret" t-value="total_sale_ext_ret+sale_line['ext_ret']"/>
+                                            </td>
+                                            <td style="text-align:center;background-color:#E0E0E0;">
+                                                <span t-esc="sale_line['journal_id']"/>
+                                            </td>
+                                            <td style="text-align:center;background-color:#E0E0E0;">
+                                                <span t-esc="sale_line['date_payment']"/>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <span/>
+                                            </td>
+                                            <td>
+                                                <span/>
+                                            </td>
+                                            <td>
+                                                <span/>
+                                            </td>
+                                            <td style="text-align:right">
+                                                <span t-esc="total_sale_amount" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: o.company_id.currency_id}"/>
+                                            </td>
+                                            <td style="text-align:right">
+                                                <span t-esc="total_sale_abono" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: o.company_id.currency_id}"/>
+                                            </td>
+                                            <td style="text-align:right;color: red">
+                                                <span t-esc="total_sale_residual" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: o.company_id.currency_id}"/>
+                                            </td>
+                                            <td style="text-align:right">
+                                                <span t-esc="total_sale_ext_ret" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: o.company_id.currency_id}"/>
+                                            </td>
+                                            <td>
+                                                <span/>
+                                            </td>
+                                            <td>
+                                                <span/>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="col-6">
+                                <h3>Facturas con pagos de <span t-esc="o.date"/>, de ventas confirmadas en otra fecha</h3>
+                                <table class="table table-sm table-bordered" >
+                                    <t t-set="invoice_other_day_lines" t-value="o.invoice_other_day_payment(o.date)"/>
+                                    <thead>
+                                        <tr style="background-color: #0b4564;">
+                                            <th style="font-size: 80%; color: white; vertical-align:middle; text-align:center"><strong>Orden</strong></th>
+                                            <th style="font-size: 80%; color: white; vertical-align:middle; text-align:center"><strong>Factura</strong></th>
+                                            <th style="font-size: 80%; color: white; vertical-align:middle; text-align:center"><strong>Cliente</strong></th>
+                                            <th style="font-size: 80%; color: white; vertical-align:middle; text-align:center"><strong>Venta</strong></th>
+                                            <th style="font-size: 80%; color: white; vertical-align:middle; text-align:center"><strong>Pagos</strong></th>
+                                            <th style="font-size: 80%; color: white; vertical-align:middle; text-align:center"><strong>T Pagos</strong></th>
+                                            <th style="font-size: 80%; color: white; vertical-align:middle; text-align:center"><strong>Saldo</strong></th>
+                                            <th style="font-size: 80%; color: white; vertical-align:middle; text-align:center"><strong>Diarios</strong></th>
+                                            <th style="font-size: 80%; color: white; vertical-align:middle; text-align:center"><strong>Fecha Med. Pago</strong></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <t t-set="total_amount_total" t-value="0"/>
+                                        <t t-set="total_payment_day" t-value="0"/>
+                                        <t t-set="total_payment_total" t-value="0"/>
+                                        <t t-set="total_residual" t-value="0"/>
+                                        <tr t-foreach="invoice_other_day_lines" t-as="invoice_line">
+                                            <td style="text-align:center;background-color:#E0E0E0;">
+                                                <span t-esc="invoice_line['sale_name']"/>
+                                            </td>
+                                            <td style="text-align:center;background-color:#E0E0E0;">
+                                                <span t-esc="invoice_line['invoice']"/>
+                                            </td>
+                                            <td style="text-align:center;background-color:#E0E0E0;">
+                                                <span t-esc="invoice_line['partner']"/>
+                                            </td>
+                                            <td style="text-align:right;background-color:#E0E0E0;">
+                                                <span t-esc="invoice_line['amount_total']" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: o.company_id.currency_id}"/>
+                                                <t t-set="total_amount_total" t-value="total_amount_total+invoice_line['amount_total']"/>
+                                            </td>
+                                            <td style="text-align:right;background-color:#E0E0E0;">
+                                                <span t-esc="invoice_line['payment_day']" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: o.company_id.currency_id}"/>
+                                                <t t-set="total_payment_day" t-value="total_payment_day+invoice_line['payment_day']"/>
+                                            </td>
+                                            <td style="text-align:right;background-color:#E0E0E0">
+                                                <span t-esc="invoice_line['payment_total']" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: o.company_id.currency_id}"/>
+                                                <t t-set="total_payment_total" t-value="total_payment_total+invoice_line['payment_total']"/>
+                                            </td>
+                                            <td style="text-align:right;background-color:#E0E0E0;color: red">
+                                                <span t-esc="invoice_line['residual']" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: o.company_id.currency_id}"/>
+                                                <t t-set="total_residual" t-value="total_residual+invoice_line['residual']"/>
+                                            </td>
+                                            <td style="text-align:center;background-color:#E0E0E0;">
+                                                <span t-esc="invoice_line['journals']"/>
+                                            </td>
+                                            <td style="text-align:center;background-color:#E0E0E0;">
+                                                <span t-esc="invoice_line['dates']"/>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <span/>
+                                            </td>
+                                            <td>
+                                                <span/>
+                                            </td>
+                                            <td>
+                                                <span/>
+                                            </td>
+                                            <td style="text-align:right">
+                                                <span t-esc="total_amount_total" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: o.company_id.currency_id}"/>
+                                            </td>
+                                            <td style="text-align:right">
+                                                <span t-esc="total_payment_day" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: o.company_id.currency_id}"/>
+                                            </td>
+                                            <td style="text-align:right">
+                                                <span t-esc="total_payment_total" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: o.company_id.currency_id}"/>
+                                            </td>
+                                            <td style="text-align:right;color: red">
+                                                <span t-esc="total_residual" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: o.company_id.currency_id}"/>
+                                            </td>
+                                            <td>
+                                                <span/>
+                                            </td>
+                                            <td>
+                                                <span/>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <br/>
+                        <div class="row">
+                            <div class="col-6">
+                                <h3>Facturas con pagos de <span t-esc="o.date"/>, de ventas confirmadas en la fecha <span t-esc="o.date"/></h3>
+                                <t t-set="invoice_day_lines" t-value="o.invoice_day_payment(o.date)"/>
+                                <table class="table table-sm table-bordered" >
+                                    <thead>
+                                        <tr style="background-color: #0b4564;">
+                                            <th style="font-size: 80%; color: white; vertical-align:middle; text-align:center"><strong>Orden</strong></th>
+                                            <th style="font-size: 80%; color: white; vertical-align:middle; text-align:center"><strong>Factura</strong></th>
+                                            <th style="font-size: 80%; color: white; vertical-align:middle; text-align:center"><strong>Cliente</strong></th>
+                                            <th style="font-size: 80%; color: white; vertical-align:middle; text-align:center"><strong>Venta</strong></th>
+                                            <th style="font-size: 80%; color: white; vertical-align:middle; text-align:center"><strong>Pagos</strong></th>
+                                            <th style="font-size: 80%; color: white; vertical-align:middle; text-align:center"><strong>T Pagos</strong></th>
+                                            <th style="font-size: 80%; color: white; vertical-align:middle; text-align:center"><strong>Saldo</strong></th>
+                                            <th style="font-size: 80%; color: white; vertical-align:middle; text-align:center"><strong>Diarios</strong></th>
+                                            <th style="font-size: 80%; color: white; vertical-align:middle; text-align:center"><strong>Fecha Med. Pago</strong></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <t t-set="total_amount_total" t-value="0"/>
+                                        <t t-set="total_payment_day" t-value="0"/>
+                                        <t t-set="total_payment_total" t-value="0"/>
+                                        <t t-set="total_residual" t-value="0"/>
+                                        <tr t-foreach="invoice_day_lines" t-as="invoice_line">
+                                            <td style="text-align:center;background-color:#E0E0E0;">
+                                                <span t-esc="invoice_line['sale_name']"/>
+                                            </td>
+                                            <td style="text-align:center;background-color:#E0E0E0;">
+                                                <span t-esc="invoice_line['invoice']"/>
+                                            </td>
+                                            <td style="text-align:center;background-color:#E0E0E0;">
+                                                <span t-esc="invoice_line['partner']"/>
+                                            </td>
+                                            <td style="text-align:right;background-color:#E0E0E0;">
+                                                <span t-esc="invoice_line['amount_total']" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: o.company_id.currency_id}"/>
+                                                <t t-set="total_amount_total" t-value="total_amount_total+invoice_line['amount_total']"/>
+                                            </td>
+                                            <td style="text-align:right;background-color:#E0E0E0;">
+                                                <span t-esc="invoice_line['payment_day']" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: o.company_id.currency_id}"/>
+                                                <t t-set="total_payment_day" t-value="total_payment_day+invoice_line['payment_day']"/>
+                                            </td>
+                                            <td style="text-align:right;background-color:#E0E0E0">
+                                                <span t-esc="invoice_line['payment_total']" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: o.company_id.currency_id}"/>
+                                                <t t-set="total_payment_total" t-value="total_payment_total+invoice_line['payment_total']"/>
+                                            </td>
+                                            <td style="text-align:right;background-color:#E0E0E0;color: red">
+                                                <span t-esc="invoice_line['residual']" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: o.company_id.currency_id}"/>
+                                                <t t-set="total_residual" t-value="total_residual+invoice_line['residual']"/>
+                                            </td>
+                                            <td style="text-align:center;background-color:#E0E0E0;">
+                                                <span t-esc="invoice_line['journals']"/>
+                                            </td>
+                                            <td style="text-align:center;background-color:#E0E0E0;">
+                                                <span t-esc="invoice_line['dates']"/>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <span/>
+                                            </td>
+                                            <td>
+                                                <span/>
+                                            </td>
+                                            <td>
+                                                <span/>
+                                            </td>
+                                            <td style="text-align:right">
+                                                <span t-esc="total_amount_total" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: o.company_id.currency_id}"/>
+                                            </td>
+                                            <td style="text-align:right">
+                                                <span t-esc="total_payment_day" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: o.company_id.currency_id}"/>
+                                            </td>
+                                            <td style="text-align:right">
+                                                <span t-esc="total_payment_total" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: o.company_id.currency_id}"/>
+                                            </td>
+                                            <td style="text-align:right;color: red">
+                                                <span t-esc="total_residual" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: o.company_id.currency_id}"/>
+                                            </td>
+                                            <td>
+                                                <span/>
+                                            </td>
+                                            <td>
+                                                <span/>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="col-6">
+                                <h3>Facturas sin saldo con ultimó pago en <span t-esc="o.date"/></h3>
+                                <t t-set="invoice_without_residual" t-value="o.invoice_without_residual_payment(o.date)"/>
+                                <table class="table table-sm table-bordered" >
+                                    <thead>
+                                        <tr style="background-color: #0b4564;">
+                                            <th style="font-size: 80%; color: white; vertical-align:middle; text-align:center"><strong>Orden</strong></th>
+                                            <th style="font-size: 80%; color: white; vertical-align:middle; text-align:center"><strong>Factura</strong></th>
+                                            <th style="font-size: 80%; color: white; vertical-align:middle; text-align:center"><strong>Cliente</strong></th>
+                                            <th style="font-size: 80%; color: white; vertical-align:middle; text-align:center"><strong>Venta</strong></th>
+                                            <th style="font-size: 80%; color: white; vertical-align:middle; text-align:center"><strong>Pagos</strong></th>
+                                            <th style="font-size: 80%; color: white; vertical-align:middle; text-align:center"><strong>T Pagos</strong></th>
+                                            <th style="font-size: 80%; color: white; vertical-align:middle; text-align:center"><strong>Saldo</strong></th>
+                                            <th style="font-size: 80%; color: white; vertical-align:middle; text-align:center"><strong>Diarios</strong></th>
+                                            <th style="font-size: 80%; color: white; vertical-align:middle; text-align:center"><strong>Fecha Med. Pago</strong></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <t t-set="total_amount_total" t-value="0"/>
+                                        <t t-set="total_payment_day" t-value="0"/>
+                                        <t t-set="total_payment_total" t-value="0"/>
+                                        <t t-set="total_residual" t-value="0"/>
+                                        <tr t-foreach="invoice_without_residual" t-as="invoice_line">
+                                            <td style="text-align:center;background-color:#E0E0E0;">
+                                                <span t-esc="invoice_line['sale_name']"/>
+                                            </td>
+                                            <td style="text-align:center;background-color:#E0E0E0;">
+                                                <span t-esc="invoice_line['invoice']"/>
+                                            </td>
+                                            <td style="text-align:center;background-color:#E0E0E0;">
+                                                <span t-esc="invoice_line['partner']"/>
+                                            </td>
+                                            <td style="text-align:right;background-color:#E0E0E0;">
+                                                <span t-esc="invoice_line['amount_total']" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: o.company_id.currency_id}"/>
+                                                <t t-set="total_amount_total" t-value="total_amount_total+invoice_line['amount_total']"/>
+                                            </td>
+                                            <td style="text-align:right;background-color:#E0E0E0;">
+                                                <span t-esc="invoice_line['payment_day']" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: o.company_id.currency_id}"/>
+                                                <t t-set="total_payment_day" t-value="total_payment_day+invoice_line['payment_day']"/>
+                                            </td>
+                                            <td style="text-align:right;background-color:#E0E0E0">
+                                                <span t-esc="invoice_line['payment_total']" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: o.company_id.currency_id}"/>
+                                                <t t-set="total_payment_total" t-value="total_payment_total+invoice_line['payment_total']"/>
+                                            </td>
+                                            <td style="text-align:right;background-color:#E0E0E0;color: red">
+                                                <span t-esc="invoice_line['residual']" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: o.company_id.currency_id}"/>
+                                                <t t-set="total_residual" t-value="total_residual+invoice_line['residual']"/>
+                                            </td>
+                                            <td style="text-align:center;background-color:#E0E0E0;">
+                                                <span t-esc="invoice_line['journals']"/>
+                                            </td>
+                                            <td style="text-align:center;background-color:#E0E0E0;">
+                                                <span t-esc="invoice_line['dates']"/>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <span/>
+                                            </td>
+                                            <td>
+                                                <span/>
+                                            </td>
+                                            <td>
+                                                <span/>
+                                            </td>
+                                            <td style="text-align:right">
+                                                <span t-esc="total_amount_total" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: o.company_id.currency_id}"/>
+                                            </td>
+                                            <td style="text-align:right">
+                                                <span t-esc="total_payment_day" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: o.company_id.currency_id}"/>
+                                            </td>
+                                            <td style="text-align:right">
+                                                <span t-esc="total_payment_total" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: o.company_id.currency_id}"/>
+                                            </td>
+                                            <td style="text-align:right;color: red">
+                                                <span t-esc="total_residual" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: o.company_id.currency_id}"/>
+                                            </td>
+                                            <td>
+                                                <span/>
+                                            </td>
+                                            <td>
+                                                <span/>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>                 
+</odoo>

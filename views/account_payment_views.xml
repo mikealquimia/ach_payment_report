@@ -1,0 +1,25 @@
+<odoo>
+  <data>
+
+    <record id="account_payment_report_payment_sale__invoice_view_form" model="ir.ui.view">
+        <field name="name">Rerport Payment Sale</field>
+        <field name="model">account.payment</field>
+        <field name="inherit_id" ref="account.view_account_payment_invoice_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='payment_date']" position="before">
+                <field name="payment_date_real"/>
+            </xpath>
+        </field>
+    </record>
+    <record id="account_payment_report_payment_sale_view_form" model="ir.ui.view">
+        <field name="name">Report Payment Sale</field>
+        <field name="model">account.payment</field>
+        <field name="inherit_id" ref="account.view_account_payment_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='payment_date']" position="before">
+                <field name="payment_date_real"/>
+            </xpath>
+        </field>
+    </record>
+  </data>
+</odoo>
