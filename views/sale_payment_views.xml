@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+        <record id="sale_payment_view_form" model="ir.ui.view">
+            <field name="name">Sales Payments Report</field>
+            <field name="model">sale.payment</field>
+            <field name="arch" type="xml">
+                <form string="Sales Payments Report">
+                    <sheet>
+                        <div class="oe_title">
+                            <h1>Sales Payments Report</h1>
+                        </div>
+                        <group>
+                            <field name="date" required="1"/>
+                            <field name="journal_ids" required="1" widget="many2many_tags"/>
+                            <field name="company_id" widget="selection"/>
+                        </group>
+                    </sheet>
+                    <footer>
+                        <button icon="fa-credit-card" string='PDF' name="get_pdf" type="object" class="btn-primary"/>
+                        <button string="Cancel" class="btn-default" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <record id="sale_payment_action" model="ir.actions.act_window">
+            <field name="name">Sales Payments Report</field>
+            <field name="res_model">sale.payment</field>
+            <field name="view_mode">form</field>
+            <field name="view_id" ref="sale_payment_view_form"/>
+            <field name="target">new</field>
+        </record>
+
+        <menuitem sequence="4" action="sale_payment_action" id="menu_sales_payments" parent="sale.sale_menu_root"/>
+
+
+</odoo>

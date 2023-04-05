@@ -4,18 +4,20 @@ from odoo import models, fields, api
 from datetime import date, datetime,timedelta
 import pytz
 
-class CashSale(models.TransientModel):
-    _name = 'cash.sale'
-    _description = 'Cash Sale'
+class SalePayment(models.TransientModel):
+    _name = 'sale.payment'
+    _description = 'Sale Payment Report'
 
-    name = fields.Char(string='Movimiento de Caja')
-    date = fields.Date(string='Fecha')
-    company_id = fields.Many2one('res.company', string="Compañia", default=lambda self: self.env.user.company_id)
+    name = fields.Char(string="Sales Payments")
+    date = fields.Date(string='Date')
+    journal_ids = fields.Many2many('account.journal', string="Journals")
+    company_id = fields.Many2one('res.company', string="Company", default=lambda self: self.env.user.company_id)
 
     def get_pdf(self):
-        return self.env.ref('ach_payment_report.action_pdf_cash_sale').report_action(self)
+        return self.env.ref('ach_payment_report.action_pdf_sale_payment_ach').report_action(self)
     
     def sale_day_lines(self, date):
+        #Set Payment to Sales in date
         so_day_lines = []
         tz = pytz.timezone(self.env.user.tz) or pytz.utc
         date_start_tz = pytz.utc.localize(datetime(date.year, date.month, date.day, 0, 0, 59)).astimezone(tz)
@@ -102,6 +104,7 @@ class CashSale(models.TransientModel):
         return so_day_lines
     
     def invoice_day_payment(self,date):
+        #Invoices confirmed in date but without payment, related sale has a confirmation date different in search date 
         invoice_day_lines = []
         tz = pytz.timezone(self.env.user.tz) or pytz.utc
         date_start_tz = pytz.utc.localize(datetime(date.year, date.month, date.day, 0, 0, 59)).astimezone(tz)
@@ -151,6 +154,7 @@ class CashSale(models.TransientModel):
         return invoice_day_lines
     
     def invoice_other_day_payment(self,date):
+        #Invoices with payment in search date but with residual, related sale has a confirmation date different in search date 
         invoice_other_day_lines = []
         tz = pytz.timezone(self.env.user.tz) or pytz.utc
         date_start_tz = pytz.utc.localize(datetime(date.year, date.month, date.day, 0, 0, 59)).astimezone(tz)
@@ -200,6 +204,7 @@ class CashSale(models.TransientModel):
         return invoice_other_day_lines
     
     def invoice_without_residual_payment(self,date):
+        #Invoices with payment in search date but without residual, related sale has a confirmation date different in search date 
         invoice_without_residual_payment = []
         tz = pytz.timezone(self.env.user.tz) or pytz.utc
         date_start_tz = pytz.utc.localize(datetime(date.year, date.month, date.day, 0, 0, 59)).astimezone(tz)

@@ -2,20 +2,19 @@
 <odoo>
         <data>
 
-                <record id="paper_cash_sale" model="report.paperformat">
-                        <field name="name">Movimiento de Caja</field>
+                <record id="paper_sale_payment" model="report.paperformat">
+                        <field name="name">Sales Payments Report</field>
                         <field name="format">A1</field>
                         <field name="orientation">Landscape</field>
                 </record>
 
-                <report 
-                        id="action_pdf_cash_sale"
-                        string="Movimiento de Caja"
-                        model="cash.sale" 
+                <report id="action_pdf_sale_payment_ach" 
+                        model="sale.payment" 
+                        string="Sales Payments Report"
                         report_type="qweb-pdf"
-                        file="ach_payment_report.payment_report" 
-                        name="ach_payment_report.payment_report"
-                        print_report_name="'Movimiento de Caja: %s' % (object.date)"
+                        name="ach_payment_report.payment_report" 
+                        file="ach_payment_report.payment_report"
+                        print_report_name="'Sales Payments: %s' % (object.date)"
                         />
                 
         </data>

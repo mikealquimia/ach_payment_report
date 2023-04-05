@@ -7,30 +7,31 @@
                     <div class="page">
                         <div class="oe_structure"/>
                         <h2 class="text-center">
-                            Movimiento de Caja
+                            Sales Payments
                         </h2>
                         <h4 class="text-center">
-                            Sucursal: <span t-esc="o.company_id.name"/>, Fecha: <span t-esc="o.date"/>
+                            Shop: <span t-esc="o.company_id.name"/>, Date: <span t-esc="o.date"/>
                         </h4>
                         <div class="row">
                             <div class="col-6">
-                                <h3>Ventas del <span t-esc="o.date"/></h3>
+                                <h3>Sales confirmed in <span t-esc="o.date"/> with/without payment</h3>
                                 <table class="table table-sm table-bordered">
                                     <t t-set="sale_day_lines" t-value="o.sale_day_lines(o.date)"/>
                                     <thead>
                                         <tr style="background-color: #0b4564;">
-                                            <th style="font-size: 80%; color: white; vertical-align:middle; text-align:center"><strong>Orden</strong></th>
-                                            <th style="font-size: 80%; color: white; vertical-align:middle; text-align:center"><strong>Factura</strong></th>
-                                            <th style="font-size: 80%; color: white; vertical-align:middle; text-align:center"><strong>Cliente</strong></th>
-                                            <th style="font-size: 80%; color: white; vertical-align:middle; text-align:center"><strong>Venta</strong></th>
-                                            <th style="font-size: 80%; color: white; vertical-align:middle; text-align:center"><strong>Abono</strong></th>
-                                            <th style="font-size: 80%; color: white; vertical-align:middle; text-align:center"><strong>Saldo</strong></th>
+                                            <th style="font-size: 80%; color: white; vertical-align:middle; text-align:center"><strong>Sale</strong></th>
+                                            <th style="font-size: 80%; color: white; vertical-align:middle; text-align:center"><strong>Invoice</strong></th>
+                                            <th style="font-size: 80%; color: white; vertical-align:middle; text-align:center"><strong>Partner</strong></th>
+                                            <th style="font-size: 80%; color: white; vertical-align:middle; text-align:center"><strong>Amount</strong></th>
+                                            <th style="font-size: 80%; color: white; vertical-align:middle; text-align:center"><strong>Payment</strong></th>
+                                            <th style="font-size: 80%; color: white; vertical-align:middle; text-align:center"><strong>Residual</strong></th>
                                             <th style="font-size: 80%; color: white; vertical-align:middle; text-align:center"><strong>Ext/Ret</strong></th>
-                                            <th style="font-size: 80%; color: white; vertical-align:middle; text-align:center"><strong>Medio de Pago</strong></th>
-                                            <th style="font-size: 80%; color: white; vertical-align:middle; text-align:center"><strong>Fecha Med. Pago--</strong></th>
+                                            <th style="font-size: 80%; color: white; vertical-align:middle; text-align:center"><strong>Journal</strong></th>
+                                            <th style="font-size: 80%; color: white; vertical-align:middle; text-align:center"><strong>Document Date</strong></th>
                                         </tr>
                                     </thead>
                                     <tbody>
+                                        <t t-set="count" t-value="0"/>
                                         <t t-set="total_sale_amount" t-value="0"/>
                                         <t t-set="total_sale_abono" t-value="0"/>
                                         <t t-set="total_sale_residual" t-value="0"/>
@@ -38,6 +39,7 @@
                                         <tr t-foreach="sale_day_lines" t-as="sale_line">
                                             <td style="text-align:center;background-color:#E0E0E0;">
                                                 <span t-esc="sale_line['name']"/>
+                                                <t t-set="count" t-value="count+1"/>
                                             </td>
                                             <td style="text-align:center;background-color:#E0E0E0;">
                                                 <span t-esc="sale_line['invoice']"/>
@@ -70,7 +72,7 @@
                                         </tr>
                                         <tr>
                                             <td>
-                                                <span/>
+                                                <span t-est="count"/>
                                             </td>
                                             <td>
                                                 <span/>
@@ -101,23 +103,24 @@
                                 </table>
                             </div>
                             <div class="col-6">
-                                <h3>Facturas con pagos de <span t-esc="o.date"/>, de ventas confirmadas en otra fecha</h3>
+                                <h3> Invoices of <span t-esc="o.date"/>, without payment, related sales with confirmation date in different search date</h3>
                                 <table class="table table-sm table-bordered" >
                                     <t t-set="invoice_other_day_lines" t-value="o.invoice_other_day_payment(o.date)"/>
                                     <thead>
                                         <tr style="background-color: #0b4564;">
-                                            <th style="font-size: 80%; color: white; vertical-align:middle; text-align:center"><strong>Orden</strong></th>
-                                            <th style="font-size: 80%; color: white; vertical-align:middle; text-align:center"><strong>Factura</strong></th>
-                                            <th style="font-size: 80%; color: white; vertical-align:middle; text-align:center"><strong>Cliente</strong></th>
-                                            <th style="font-size: 80%; color: white; vertical-align:middle; text-align:center"><strong>Venta</strong></th>
-                                            <th style="font-size: 80%; color: white; vertical-align:middle; text-align:center"><strong>Pagos</strong></th>
-                                            <th style="font-size: 80%; color: white; vertical-align:middle; text-align:center"><strong>T Pagos</strong></th>
-                                            <th style="font-size: 80%; color: white; vertical-align:middle; text-align:center"><strong>Saldo</strong></th>
-                                            <th style="font-size: 80%; color: white; vertical-align:middle; text-align:center"><strong>Diarios</strong></th>
-                                            <th style="font-size: 80%; color: white; vertical-align:middle; text-align:center"><strong>Fecha Med. Pago</strong></th>
+                                            <th style="font-size: 80%; color: white; vertical-align:middle; text-align:center"><strong>Sale</strong></th>
+                                            <th style="font-size: 80%; color: white; vertical-align:middle; text-align:center"><strong>Invoice</strong></th>
+                                            <th style="font-size: 80%; color: white; vertical-align:middle; text-align:center"><strong>Partner</strong></th>
+                                            <th style="font-size: 80%; color: white; vertical-align:middle; text-align:center"><strong>Sale</strong></th>
+                                            <th style="font-size: 80%; color: white; vertical-align:middle; text-align:center"><strong>Payment</strong></th>
+                                            <th style="font-size: 80%; color: white; vertical-align:middle; text-align:center"><strong>Total Payment</strong></th>
+                                            <th style="font-size: 80%; color: white; vertical-align:middle; text-align:center"><strong>Residual</strong></th>
+                                            <th style="font-size: 80%; color: white; vertical-align:middle; text-align:center"><strong>Journal</strong></th>
+                                            <th style="font-size: 80%; color: white; vertical-align:middle; text-align:center"><strong>Document Date</strong></th>
                                         </tr>
                                     </thead>
                                     <tbody>
+                                        <t t-set="count" t-value="0"/>
                                         <t t-set="total_amount_total" t-value="0"/>
                                         <t t-set="total_payment_day" t-value="0"/>
                                         <t t-set="total_payment_total" t-value="0"/>
@@ -125,6 +128,7 @@
                                         <tr t-foreach="invoice_other_day_lines" t-as="invoice_line">
                                             <td style="text-align:center;background-color:#E0E0E0;">
                                                 <span t-esc="invoice_line['sale_name']"/>
+                                                <t t-set="count" t-value="count+1"/>
                                             </td>
                                             <td style="text-align:center;background-color:#E0E0E0;">
                                                 <span t-esc="invoice_line['invoice']"/>
@@ -157,7 +161,7 @@
                                         </tr>
                                         <tr>
                                             <td>
-                                                <span/>
+                                                <span  t-esc="count"/>
                                             </td>
                                             <td>
                                                 <span/>
@@ -191,23 +195,24 @@
                         <br/>
                         <div class="row">
                             <div class="col-6">
-                                <h3>Facturas con pagos de <span t-esc="o.date"/>, de ventas confirmadas en la fecha <span t-esc="o.date"/></h3>
+                                <h3>Invoices with payments of <span t-esc="o.date"/> and residual, related sale with confirmation date in different search date</h3>
                                 <t t-set="invoice_day_lines" t-value="o.invoice_day_payment(o.date)"/>
                                 <table class="table table-sm table-bordered" >
                                     <thead>
                                         <tr style="background-color: #0b4564;">
-                                            <th style="font-size: 80%; color: white; vertical-align:middle; text-align:center"><strong>Orden</strong></th>
-                                            <th style="font-size: 80%; color: white; vertical-align:middle; text-align:center"><strong>Factura</strong></th>
-                                            <th style="font-size: 80%; color: white; vertical-align:middle; text-align:center"><strong>Cliente</strong></th>
-                                            <th style="font-size: 80%; color: white; vertical-align:middle; text-align:center"><strong>Venta</strong></th>
-                                            <th style="font-size: 80%; color: white; vertical-align:middle; text-align:center"><strong>Pagos</strong></th>
-                                            <th style="font-size: 80%; color: white; vertical-align:middle; text-align:center"><strong>T Pagos</strong></th>
-                                            <th style="font-size: 80%; color: white; vertical-align:middle; text-align:center"><strong>Saldo</strong></th>
-                                            <th style="font-size: 80%; color: white; vertical-align:middle; text-align:center"><strong>Diarios</strong></th>
-                                            <th style="font-size: 80%; color: white; vertical-align:middle; text-align:center"><strong>Fecha Med. Pago</strong></th>
+                                            <th style="font-size: 80%; color: white; vertical-align:middle; text-align:center"><strong>Sale</strong></th>
+                                            <th style="font-size: 80%; color: white; vertical-align:middle; text-align:center"><strong>Invoice</strong></th>
+                                            <th style="font-size: 80%; color: white; vertical-align:middle; text-align:center"><strong>Partner</strong></th>
+                                            <th style="font-size: 80%; color: white; vertical-align:middle; text-align:center"><strong>Sale</strong></th>
+                                            <th style="font-size: 80%; color: white; vertical-align:middle; text-align:center"><strong>Payment</strong></th>
+                                            <th style="font-size: 80%; color: white; vertical-align:middle; text-align:center"><strong>Total Payment</strong></th>
+                                            <th style="font-size: 80%; color: white; vertical-align:middle; text-align:center"><strong>Residual</strong></th>
+                                            <th style="font-size: 80%; color: white; vertical-align:middle; text-align:center"><strong>Journal</strong></th>
+                                            <th style="font-size: 80%; color: white; vertical-align:middle; text-align:center"><strong>Document Date</strong></th>
                                         </tr>
                                     </thead>
                                     <tbody>
+                                        <t t-set="count" t-value="0"/>
                                         <t t-set="total_amount_total" t-value="0"/>
                                         <t t-set="total_payment_day" t-value="0"/>
                                         <t t-set="total_payment_total" t-value="0"/>
@@ -215,6 +220,7 @@
                                         <tr t-foreach="invoice_day_lines" t-as="invoice_line">
                                             <td style="text-align:center;background-color:#E0E0E0;">
                                                 <span t-esc="invoice_line['sale_name']"/>
+                                                <t t-set="count" t-value="count+1"/>
                                             </td>
                                             <td style="text-align:center;background-color:#E0E0E0;">
                                                 <span t-esc="invoice_line['invoice']"/>
@@ -247,7 +253,7 @@
                                         </tr>
                                         <tr>
                                             <td>
-                                                <span/>
+                                                <span t-esc="count"/>
                                             </td>
                                             <td>
                                                 <span/>
@@ -278,23 +284,24 @@
                                 </table>
                             </div>
                             <div class="col-6">
-                                <h3>Facturas sin saldo con ultimó pago en <span t-esc="o.date"/></h3>
+                                <h3>Invoices with payments of <span t-esc="o.date"/> and residual, related sale with confirmation date in different search date</h3>
                                 <t t-set="invoice_without_residual" t-value="o.invoice_without_residual_payment(o.date)"/>
                                 <table class="table table-sm table-bordered" >
                                     <thead>
                                         <tr style="background-color: #0b4564;">
-                                            <th style="font-size: 80%; color: white; vertical-align:middle; text-align:center"><strong>Orden</strong></th>
-                                            <th style="font-size: 80%; color: white; vertical-align:middle; text-align:center"><strong>Factura</strong></th>
-                                            <th style="font-size: 80%; color: white; vertical-align:middle; text-align:center"><strong>Cliente</strong></th>
-                                            <th style="font-size: 80%; color: white; vertical-align:middle; text-align:center"><strong>Venta</strong></th>
-                                            <th style="font-size: 80%; color: white; vertical-align:middle; text-align:center"><strong>Pagos</strong></th>
-                                            <th style="font-size: 80%; color: white; vertical-align:middle; text-align:center"><strong>T Pagos</strong></th>
-                                            <th style="font-size: 80%; color: white; vertical-align:middle; text-align:center"><strong>Saldo</strong></th>
-                                            <th style="font-size: 80%; color: white; vertical-align:middle; text-align:center"><strong>Diarios</strong></th>
-                                            <th style="font-size: 80%; color: white; vertical-align:middle; text-align:center"><strong>Fecha Med. Pago</strong></th>
+                                            <th style="font-size: 80%; color: white; vertical-align:middle; text-align:center"><strong>Sale</strong></th>
+                                            <th style="font-size: 80%; color: white; vertical-align:middle; text-align:center"><strong>Invoice</strong></th>
+                                            <th style="font-size: 80%; color: white; vertical-align:middle; text-align:center"><strong>Partner</strong></th>
+                                            <th style="font-size: 80%; color: white; vertical-align:middle; text-align:center"><strong>Sale</strong></th>
+                                            <th style="font-size: 80%; color: white; vertical-align:middle; text-align:center"><strong>Payment</strong></th>
+                                            <th style="font-size: 80%; color: white; vertical-align:middle; text-align:center"><strong>Total Payment</strong></th>
+                                            <th style="font-size: 80%; color: white; vertical-align:middle; text-align:center"><strong>Residual</strong></th>
+                                            <th style="font-size: 80%; color: white; vertical-align:middle; text-align:center"><strong>Journal</strong></th>
+                                            <th style="font-size: 80%; color: white; vertical-align:middle; text-align:center"><strong>Document Date</strong></th>
                                         </tr>
                                     </thead>
                                     <tbody>
+                                        <t t-set="count" t-value="0"/>
                                         <t t-set="total_amount_total" t-value="0"/>
                                         <t t-set="total_payment_day" t-value="0"/>
                                         <t t-set="total_payment_total" t-value="0"/>
@@ -302,6 +309,7 @@
                                         <tr t-foreach="invoice_without_residual" t-as="invoice_line">
                                             <td style="text-align:center;background-color:#E0E0E0;">
                                                 <span t-esc="invoice_line['sale_name']"/>
+                                                <t t-set="count" t-value="count+1"/>
                                             </td>
                                             <td style="text-align:center;background-color:#E0E0E0;">
                                                 <span t-esc="invoice_line['invoice']"/>
@@ -334,7 +342,7 @@
                                         </tr>
                                         <tr>
                                             <td>
-                                                <span/>
+                                                <span t-esc="count"/>
                                             </td>
                                             <td>
                                                 <span/>
