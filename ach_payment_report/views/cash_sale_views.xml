@@ -7,7 +7,7 @@
                 <form string="Movimientos de Caja">
                     <sheet>
                         <div class="oe_title">
-                            <h1>Movimientos de Caja</h1>
+                            <h1>Cash Sale</h1>
                         </div>
                         <group>
                             <field name="date" required="1"/>
@@ -16,14 +16,14 @@
                     </sheet>
                     <footer>
                         <button icon="fa-credit-card" string='PDF' name="get_pdf" type="object" class="btn-primary"/>
-                        <button string="Cancelar" class="btn-default" special="cancel"/>
+                        <button string="Cancel" class="btn-default" special="cancel"/>
                     </footer>
                 </form>
             </field>
         </record>
 
         <record id="cash_sale_action" model="ir.actions.act_window">
-            <field name="name">Movimiento de Caja</field>
+            <field name="name">Cash Sale</field>
             <field name="res_model">cash.sale</field>
             <field name="view_mode">form</field>
             <field name="view_id" ref="cash_sale_view_form"/>

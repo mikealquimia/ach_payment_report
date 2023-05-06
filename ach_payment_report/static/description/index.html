@@ -1,0 +1,115 @@
+<section class="oe_container">
+    <div class="oe_row oe_spaced">
+        <h2 class="oe_slogan" style="color:#875A7B;">Sales Advances</h2>
+        <p class="oe_mt32 text-center">
+			From the sales module you can add advances to your sales without the need to create partial invoices, you can also add advances from different clients to your invoice.
+		</p>
+    </div>
+</section>
+
+<section class="oe_container oe_dark">
+    <div class="oe_row oe_spaced">
+        <h2 class="oe_slogan">Translated languages</h2>
+        <div class="oe_span1 text-center">
+            <img class="o_kanban_image" src="flag/arg.png"/>
+            <img class="o_kanban_image" src="flag/bol.png"/>
+            <img class="o_kanban_image" src="flag/chile.jpeg"/>
+            <img class="o_kanban_image" src="flag/col.png"/>
+            <img class="o_kanban_image" src="flag/cr.jpeg"/>
+            <img class="o_kanban_image" src="flag/ecu.png"/>
+            <img class="o_kanban_image" src="flag/eeuu.png"/>
+            <img class="o_kanban_image" src="flag/esp.png"/>
+            <img class="o_kanban_image" src="flag/gt.png"/>
+            <img class="o_kanban_image" src="flag/hnd.png"/>
+            <img class="o_kanban_image" src="flag/mex.png"/>
+            <img class="o_kanban_image" src="flag/nic.png"/>
+            <img class="o_kanban_image" src="flag/pana.png"/>
+            <img class="o_kanban_image" src="flag/sv.jpeg"/>
+            <img class="o_kanban_image" src="flag/ven.png"/>
+        </div>
+    </div>
+</section>
+
+<section class="oe_container">
+    <div class="oe_row oe_spaced">
+        <div class="oe_span12">
+            <h4 class="oe_mt32 oe_mb8 text-center">
+                <b>After Install:</b>
+            </h4>
+            <p class="oe_mt32 text-center">
+                Natively, odoo does not have the relationship of sales and invoices, for this reason we will have to execute a planned action for all those invoices created before the installation of this module.
+            </p>
+        </div>
+    </div>
+</section>
+
+<section class="oe_container">
+    <div class="oe_row oe_spaced">
+        <div class="oe_span12">
+            <h4 class="oe_mt32 oe_mb8 text-center">
+                <b>Step 1:</b>
+            </h4>
+            <p class="oe_mt32 text-center">
+                Enter the "Settings" module, then in developer mode enter the "Technical" menu item, looking for the "Scheduled Actions" option.
+            </p>
+            <img class="oe_picture oe_screenshot center" src="settings.gif">
+            <h4 class="oe_mt32 oe_mb8 text-center">
+                <b>Step 2:</b>
+            </h4>
+            <br><br/>
+            <p class="oe_mt32 text-center">
+                Look for the record called "Mapping Sale Invoice", when you are inside click on the "Run Manually" button.
+            </p>
+            <img class="oe_picture oe_screenshot center" src="scheduled_action.gif">
+            <p class="oe_mt32 text-center">
+                This will execute a database query to generate sales relationships with their respective invoices, a fundamental process to add advance payments and generate reports.
+            </p>
+            <br><br/>
+            <h4 class="oe_mt32 oe_mb8 text-center">
+                <b>Step 3:</b>
+            </h4>
+            <p class="oe_mt32 text-center">
+                Add the permission to the users that you want to add advances to sales, (all sales users will be able to observe advances, but not only those with this permission will be able to create advances).
+            </p>
+            <img class="oe_picture oe_screenshot center" src="users.gif">
+            <br><br/>
+            <h4 class="oe_mt32 oe_mb8 text-center">
+                <b>Step 4:</b>
+            </h4>
+            <p class="oe_mt32 text-center">
+                At the sales configuration level, it must be established in which sales state it will be possible to add advances.
+            </p>
+            <img class="oe_picture oe_screenshot center" src="configuration.gif">
+        </div>
+    </div>
+</section>
+
+<section class="oe_container">
+    <div class="oe_row oe_spaced">
+        <div class="oe_span12">
+            <h4 class="oe_mt32 oe_mb8 text-center">
+                <b>How does it work?</b>
+            </h4>
+            <p class="oe_mt32 text-center">
+                From the sale we will have the "Advance Payment" button to be able to add a payment, you will have to establish the amount of your advance and then click on the "Validate" button.
+            </p>
+            <p class="oe_mt32 text-center">
+                The amount of advance could be:
+                <br/>1. The total amount of the sale if you do not have any payment added previously.
+                <br/>2. The remainder pending from the sum of the amount owed + the amount not billed.
+            </p>
+            <img class="oe_picture oe_screenshot center" src="add_payment.gif">
+            <p class="oe_mt32 text-center">
+                You will be able to add payments with a different customer than your quote without having the problem of not being able to add to the invoice.
+            </p>
+            <br/>
+            <p class="oe_mt32 text-center">
+                When creating an invoice linked to the sale, or having one previously created, we can add the advances by clicking the "Add payment advance" button.
+            </p>
+            <img class="oe_picture oe_screenshot center" src="add_invoice.gif">
+        </div>
+    </div>
+</section>
+
+<section class="oe_container oe_separator">
+</section>

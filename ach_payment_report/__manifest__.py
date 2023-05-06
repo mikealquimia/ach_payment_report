@@ -1,0 +1,26 @@
+# -*- coding: utf-8 -*-
+{
+    'name': "Payment Sales Report",
+    'summary': """Report to sales and payments to date""",
+    'description': """Report to sales and payments to date""",
+    'author': "Gt Alchemy Development",
+    'license': 'LGPL-3',
+    'support': 'developmentalchemygx@gmail.com',
+    'category': 'Sales',
+    'version': '0.1',
+    'version': '1.1',
+    'price': 5.00,
+    'depends': ['base',
+                'sale',
+                'account',
+                'sale_management',
+                'ach_payment_sale'],
+    'data': [
+        'security/ir.model.access.csv',
+        'reports/report_payment_action.xml',
+        'reports/report_payment.xml',
+        'views/cash_sale_views.xml',
+        'views/account_payment_views.xml',
+    ],
+    'images': ['static/description/banner.png'],
+}
