@@ -319,3 +319,35 @@ aipr.journal, xxaipr.amount  """
             }
             invoice_day_lines.append(vals)
         return invoice_day_lines
+    
+    def journal_detail(self, date):
+        detail_journal_amount = []
+        hour_tz = self.get_hour_tz(self.env.user.tz)
+        date_start_tz = datetime(date.year, date.month, date.day, 0, 0, 0) + timedelta(hours=hour_tz)
+        date_stop_tz = datetime(date.year, date.month, date.day, 23, 59, 59) + timedelta(hours=hour_tz)
+        date_str = '%s-%s-%s' % (date_start_tz.year, date_start_tz.month, date_start_tz.day)
+        str_date_start = '%s-%s-%s %s:%s:%s' % (date_start_tz.year, date_start_tz.month, date_start_tz.day, date_start_tz.hour, date_start_tz.minute, date_start_tz.second)
+        str_date_stop = '%s-%s-%s %s:%s:%s' % (date_stop_tz.year, date_stop_tz.month, date_stop_tz.day, date_stop_tz.hour, date_stop_tz.minute, date_stop_tz.second)
+        date_q = datetime.strptime(date_str, '%Y-%m-%d')
+        date_q_start = datetime.strptime(str_date_start, '%Y-%m-%d %H:%M:%S')
+        date_q_stop = datetime.strptime(str_date_stop, '%Y-%m-%d %H:%M:%S')
+        query = """
+select distinct aj.name as journal, ap.amount as amount 
+from account_journal aj 
+inner join (
+	select ap2.journal_id as journal_id, sum(ap2.amount) as amount 
+	from account_payment ap2 
+	where ap2.payment_date = '06-05-2023'
+	group by ap2.journal_id 
+) as ap 
+on aj.id = ap.journal_id 
+group by aj.name, ap.amount """
+        params = (date_q)
+        self.env.cr.execute(query, params)
+        for line in self.env.cr.dictfetchall():
+            vals = {
+                'journal': line['journal'],
+                'amount': line['amount'],
+            }
+            detail_journal_amount.append(vals)
+        return detail_journal_amount
