@@ -21,6 +21,8 @@
         'reports/report_payment.xml',
         'views/cash_sale_views.xml',
         'views/account_payment_views.xml',
+        'views/account_journal.xml',
+        'views/account_invoice.xml',
     ],
     'images': ['static/description/banner.png'],
 }
