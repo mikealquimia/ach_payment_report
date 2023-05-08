@@ -4,7 +4,7 @@
 
                 <record id="paper_cash_sale" model="report.paperformat">
                         <field name="name">Cash Sale</field>
-                        <field name="format">A1</field>
+                        <field name="format">Tabloid</field>
                         <field name="orientation">Landscape</field>
                 </record>
 
@@ -16,6 +16,7 @@
                         file="ach_payment_report.payment_report"
                         name="ach_payment_report.payment_report"
                         print_report_name="'Cash Sale: %s' % (object.date)"
+                        paperformat="ach_payment_report.paper_cash_sale"
                         />
 
         </data>
