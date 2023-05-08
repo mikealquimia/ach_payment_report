@@ -4,7 +4,7 @@
             <field name="name">Cash Sale</field>
             <field name="model">cash.sale</field>
             <field name="arch" type="xml">
-                <form string="Movimientos de Caja">
+                <form string="Cash Sale">
                     <sheet>
                         <div class="oe_title">
                             <h1>Cash Sale</h1>
@@ -31,6 +31,5 @@
         </record>
 
         <menuitem sequence="3" action="cash_sale_action" id="menu_cash_sale" parent="sale.sale_menu_root"/>
-
 
 </odoo>

@@ -148,7 +148,6 @@ order by so.name; """
         date_q = datetime.strptime(date_str, '%Y-%m-%d')
         date_q_start = datetime.strptime(str_date_start, '%Y-%m-%d %H:%M:%S')
         date_q_stop = datetime.strptime(str_date_stop, '%Y-%m-%d %H:%M:%S')
-        print(date_q_start, date_q)
         query = """
 select ai.origin as order, ai.number as invoice, ai.amount_total_signed as invoice_amount, 
 rp.name as partner, so.amount_total as sale_amount, ai.residual_signed as residual 
@@ -319,7 +318,7 @@ aipr.journal, xxaipr.amount  """
             }
             invoice_day_lines.append(vals)
         return invoice_day_lines
-    
+
     def journal_detail(self, date):
         detail_journal_amount = []
         hour_tz = self.get_hour_tz(self.env.user.tz)
