@@ -324,6 +324,37 @@
                                         </tr>
                                     </tbody>
                                 </table>
+                                <br/>
+                                <h3>Detail Payment for Journal</h3>
+                                <table class="table table-sm table-bordered">
+                                    <thead>
+                                        <tr style="background-color: #0b4564;">
+                                            <th style="font-size: 80%; color: white; vertical-align:middle; text-align:center"><strong>Journal</strong></th>
+                                            <th style="font-size: 80%; color: white; vertical-align:middle; text-align:center"><strong>Amount</strong></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <t t-set="detail_journal" t-value="o.journal_detail(o.date)"/>
+                                        <t t-set="total_amount" t-value="0"/>
+                                        <tr t-foreach="detail_journal" t-as="journal_line">
+                                            <td style="text-align:center;background-color:#E0E0E0;">
+                                                <span t-esc="journal_line['journal']"/>
+                                            </td>
+                                            <td style="text-align:right;background-color:#E0E0E0;">
+                                                <span t-esc="journal_line['amount']" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: o.company_id.currency_id}"/>
+                                                <t t-set="total_amount" t-value="total_amount+journal_line['amount']"/>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                Total:
+                                            </td>
+                                            <td style="text-align:right">
+                                                <span t-esc="total_amount" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: o.company_id.currency_id}"/>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
                     </div>

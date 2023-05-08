@@ -1,0 +1,231 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* ach_payment_report
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 12.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2023-05-08 18:09+0000\n"
+"PO-Revision-Date: 2023-05-08 12:10-0600\n"
+"Last-Translator: <>\n"
+"Language-Team: \n"
+"Language: es\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: \n"
+"X-Generator: Poedit 3.0.1\n"
+
+#. module: ach_payment_report
+#: model_terms:ir.ui.view,arch_db:ach_payment_report.payment_report
+msgid ", Date:"
+msgstr ", Fecha:"
+
+#. module: ach_payment_report
+#: model_terms:ir.ui.view,arch_db:ach_payment_report.payment_report
+msgid "<strong>Amount</strong>"
+msgstr "<strong>Monto</strong>"
+
+#. module: ach_payment_report
+#: model_terms:ir.ui.view,arch_db:ach_payment_report.payment_report
+msgid "<strong>Date Document</strong>"
+msgstr "<strong>Fecha Documento</strong>"
+
+#. module: ach_payment_report
+#: model_terms:ir.ui.view,arch_db:ach_payment_report.payment_report
+msgid "<strong>Ext/Ret</strong>"
+msgstr "<strong>Ext-Ret</strong>"
+
+#. module: ach_payment_report
+#: model_terms:ir.ui.view,arch_db:ach_payment_report.payment_report
+msgid "<strong>Invoice</strong>"
+msgstr "<strong>Factura</strong>"
+
+#. module: ach_payment_report
+#: model_terms:ir.ui.view,arch_db:ach_payment_report.payment_report
+msgid "<strong>Invoiced</strong>"
+msgstr "<strong>Facturado</strong>"
+
+#. module: ach_payment_report
+#: model_terms:ir.ui.view,arch_db:ach_payment_report.payment_report
+msgid "<strong>Journal</strong>"
+msgstr "<strong>Diario</strong>"
+
+#. module: ach_payment_report
+#: model_terms:ir.ui.view,arch_db:ach_payment_report.payment_report
+msgid "<strong>Order</strong>"
+msgstr "<strong>Orden</strong>"
+
+#. module: ach_payment_report
+#: model_terms:ir.ui.view,arch_db:ach_payment_report.payment_report
+msgid "<strong>Partner</strong>"
+msgstr "<strong>Cliente</strong>"
+
+#. module: ach_payment_report
+#: model_terms:ir.ui.view,arch_db:ach_payment_report.payment_report
+msgid "<strong>Payment</strong>"
+msgstr "<strong>Pago</strong>"
+
+#. module: ach_payment_report
+#: model_terms:ir.ui.view,arch_db:ach_payment_report.payment_report
+msgid "<strong>Residual</strong>"
+msgstr "<strong>Saldo</strong>"
+
+#. module: ach_payment_report
+#: model_terms:ir.ui.view,arch_db:ach_payment_report.payment_report
+msgid "<strong>Ret/Ext</strong>"
+msgstr "<strong>Ret-Ext</strong>"
+
+#. module: ach_payment_report
+#: model_terms:ir.ui.view,arch_db:ach_payment_report.payment_report
+msgid "<strong>Sale</strong>"
+msgstr "<strong>Venta</strong>"
+
+#. module: ach_payment_report
+#: model_terms:ir.ui.view,arch_db:ach_payment_report.cash_sale_view_form
+msgid "Cancel"
+msgstr "Cancelar"
+
+#. module: ach_payment_report
+#: model:ir.actions.act_window,name:ach_payment_report.cash_sale_action
+#: model:ir.actions.report,name:ach_payment_report.action_pdf_cash_sale
+#: model:ir.model,name:ach_payment_report.model_cash_sale
+#: model:ir.model.fields,field_description:ach_payment_report.field_cash_sale__name
+#: model:ir.ui.menu,name:ach_payment_report.menu_cash_sale
+#: model_terms:ir.ui.view,arch_db:ach_payment_report.cash_sale_view_form
+#: model_terms:ir.ui.view,arch_db:ach_payment_report.payment_report
+msgid "Cash Sale"
+msgstr "Movimiento de Caja"
+
+#. module: ach_payment_report
+#: model:ir.model.fields,field_description:ach_payment_report.field_cash_sale__company_id
+msgid "Company"
+msgstr "Compañía"
+
+#. module: ach_payment_report
+#: model:ir.model.fields,field_description:ach_payment_report.field_cash_sale__create_uid
+msgid "Created by"
+msgstr "Creado por"
+
+#. module: ach_payment_report
+#: model:ir.model.fields,field_description:ach_payment_report.field_cash_sale__create_date
+msgid "Created on"
+msgstr "Creado el"
+
+#. module: ach_payment_report
+#: model:ir.model.fields,field_description:ach_payment_report.field_cash_sale__date
+msgid "Date"
+msgstr "Fecha"
+
+#. module: ach_payment_report
+#: model:ir.model.fields,field_description:ach_payment_report.field_account_payment__payment_date_real
+msgid "Date document"
+msgstr "Fecha Documento"
+
+#. module: ach_payment_report
+#: model_terms:ir.ui.view,arch_db:ach_payment_report.payment_report
+msgid "Detail Payment for Journal"
+msgstr "Detalle de Pagos por Diario"
+
+#. module: ach_payment_report
+#: model:ir.model.fields,field_description:ach_payment_report.field_cash_sale__display_name
+msgid "Display Name"
+msgstr "Nombre mostrado"
+
+#. module: ach_payment_report
+#: model:ir.model.fields,field_description:ach_payment_report.field_cash_sale__id
+msgid "ID"
+msgstr "Id"
+
+#. module: ach_payment_report
+#: model:ir.model,name:ach_payment_report.model_account_invoice
+msgid "Invoice"
+msgstr "Factura"
+
+#. module: ach_payment_report
+#: model_terms:ir.ui.view,arch_db:ach_payment_report.payment_report
+msgid "Invoice of day without payment (confirmation date sale order other day)"
+msgstr "Facturas del día sin pagos (venta confirmada en otro día)"
+
+#. module: ach_payment_report
+#: model_terms:ir.ui.view,arch_db:ach_payment_report.payment_report
+msgid "Invoice paid (confirmation date sale order other day)"
+msgstr "Facturas Pagadas (venta confirmada en otro día)"
+
+#. module: ach_payment_report
+#: model_terms:ir.ui.view,arch_db:ach_payment_report.payment_report
+msgid "Invoice partial paid (confirmation date sale order other day)"
+msgstr "Facturas Pagas Parcialmente (venta confirmada en otro día)"
+
+#. module: ach_payment_report
+#: model:ir.model,name:ach_payment_report.model_account_journal
+#: model:ir.model.fields,field_description:ach_payment_report.field_cash_sale__journal_ids
+msgid "Journal"
+msgstr "Diario"
+
+#. module: ach_payment_report
+#: model:ir.model.fields,field_description:ach_payment_report.field_cash_sale____last_update
+msgid "Last Modified on"
+msgstr "Última modificación en"
+
+#. module: ach_payment_report
+#: model:ir.model.fields,field_description:ach_payment_report.field_account_invoice__last_payment
+msgid "Last Payment"
+msgstr "Ultimo Pago"
+
+#. module: ach_payment_report
+#: model:ir.model.fields,field_description:ach_payment_report.field_cash_sale__write_uid
+msgid "Last Updated by"
+msgstr "Última actualización por"
+
+#. module: ach_payment_report
+#: model:ir.model.fields,field_description:ach_payment_report.field_cash_sale__write_date
+msgid "Last Updated on"
+msgstr "Última actualización el"
+
+#. module: ach_payment_report
+#: model_terms:ir.ui.view,arch_db:ach_payment_report.payment_report
+msgid "No. Sales:"
+msgstr "No. ventas:"
+
+#. module: ach_payment_report
+#: model_terms:ir.ui.view,arch_db:ach_payment_report.cash_sale_view_form
+msgid "PDF"
+msgstr "PDF"
+
+#. module: ach_payment_report
+#: model:ir.model,name:ach_payment_report.model_account_payment
+msgid "Payments"
+msgstr "Pagos"
+
+#. module: ach_payment_report
+#: model:ir.model.fields,field_description:ach_payment_report.field_account_bank_statement_import_journal_creation__ret_ext
+#: model:ir.model.fields,field_description:ach_payment_report.field_account_journal__ret_ext
+msgid "Ret/Ext"
+msgstr "Ret/Ext"
+
+#. module: ach_payment_report
+#: model_terms:ir.ui.view,arch_db:ach_payment_report.payment_report
+msgid "Sale of day"
+msgstr "Venta del día"
+
+#. module: ach_payment_report
+#: model_terms:ir.ui.view,arch_db:ach_payment_report.payment_report
+msgid "Shop:"
+msgstr "Tienda:"
+
+#. module: ach_payment_report
+#: model_terms:ir.ui.view,arch_db:ach_payment_report.payment_report
+msgid "Total Invoice:"
+msgstr "Total facturas:"
+
+#. module: ach_payment_report
+#: model_terms:ir.ui.view,arch_db:ach_payment_report.payment_report
+msgid "Total Invoices:"
+msgstr "Total facturas:"
+
+#. module: ach_payment_report
+#: model_terms:ir.ui.view,arch_db:ach_payment_report.payment_report
+msgid "Total:"
+msgstr "Total:"

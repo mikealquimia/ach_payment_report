@@ -10,6 +10,7 @@ class CashSale(models.TransientModel):
 
     name = fields.Char(string='Cash Sale')
     date = fields.Date(string='Date')
+    journal_ids = fields.Many2many('account.journal', string="Journal", domain=[('type','=','sale')])
     company_id = fields.Many2one('res.company', string="Company", default=lambda self: self.env.user.company_id)
 
     def get_pdf(self):
@@ -21,6 +22,7 @@ class CashSale(models.TransientModel):
 
     def sale_day_lines(self, date):
         so_day_lines = []
+        journals = [x.id for x in self.journal_ids]
         hour_tz = self.get_hour_tz(self.env.user.tz)
         date_start_tz = datetime(date.year, date.month, date.day, 0, 0, 1) + timedelta(hours=hour_tz) 
         date_stop_tz = datetime(date.year, date.month, date.day, 23, 59, 59) + timedelta(hours=hour_tz)
@@ -54,7 +56,7 @@ left join (
 	select sum(ap4.amount) as amou, ap4.sale_id 
 	from account_payment ap4 
 	where ap4.state_sale_invoice = 'no_add' and ap4.payment_date <= %s 
-	group by ap4.sale_id  
+	group by ap4.sale_id 
 ) as payment_so_t 
 on payment_so_t.sale_id = so.id 
 left join ( 
@@ -87,7 +89,8 @@ left join (
 		where aj2.ret_ext is null
 		) as journals2 
 	on journals2.id = payment_ai.journal_id2 
-	group by ai.number, ai.id 
+	where ai.journal_id in %s 
+    group by ai.number, ai.id 
 	) as invoices 
 on invoices.id = aisor.account_invoice_id 
 left join ( 
@@ -111,16 +114,17 @@ left join (
 	inner join ( 
 		select aj2.name as paname, aj2.id 
 		from account_journal aj2 
-		where aj2.ret_ext = true  
+		where aj2.ret_ext = true 
 		) as journals2 
 	on journals2.id = payment_ai.journal_id2 
-	group by ai.number, ai.id 
+	where ai.journal_id in %s 
+    group by ai.number, ai.id 
 	) as xinvoices 
 on xinvoices.id = aisor.account_invoice_id 
 where so.confirmation_date between %s and %s 
 group by so.name, rp.name, so.amount_total 
 order by so.name; """
-        params = (date_q, date_q, date_q, date_q, date_q, date_q, date_q_start, date_q_stop)
+        params = (date_q, date_q, date_q, date_q, tuple(journals), date_q, date_q, tuple(journals), date_q_start, date_q_stop)
         self.env.cr.execute(query, params)
         for line in self.env.cr.dictfetchall():
             vals = {
@@ -139,6 +143,7 @@ order by so.name; """
 
     def invoice_without_payment(self,date):
         invoice_day_lines = []
+        journals = [x.id for x in self.journal_ids]
         hour_tz = self.get_hour_tz(self.env.user.tz)
         date_start_tz = datetime(date.year, date.month, date.day, 0, 0, 0) + timedelta(hours=hour_tz)
         date_stop_tz = datetime(date.year, date.month, date.day, 23, 59, 59) + timedelta(hours=hour_tz)
@@ -158,8 +163,8 @@ inner join account_invoice_sale_order_rel aisor
 on aisor.account_invoice_id = ai.id 
 inner join sale_order so 
 on so.id = aisor.sale_order_id and so.confirmation_date < %s 
-where ai.date_invoice = %s and ai.residual_signed = ai.amount_total_signed """
-        params = (date_q_start, date_q)
+where ai.date_invoice = %s and ai.residual_signed = ai.amount_total_signed and ai.journal_id in %s """
+        params = (date_q_start, date_q, tuple(journals))
         self.env.cr.execute(query, params)
         for line in self.env.cr.dictfetchall():
             vals = {
@@ -175,6 +180,7 @@ where ai.date_invoice = %s and ai.residual_signed = ai.amount_total_signed """
 
     def invoice_paid(self,date):
         invoice_day_lines = []
+        journals = [x.id for x in self.journal_ids]
         hour_tz = self.get_hour_tz(self.env.user.tz)
         date_start_tz = datetime(date.year, date.month, date.day, 0, 0, 0) + timedelta(hours=hour_tz)
         date_stop_tz = datetime(date.year, date.month, date.day, 23, 59, 59) + timedelta(hours=hour_tz)
@@ -190,7 +196,7 @@ rp.name as partner, sum(so.amount_total) as sale_amount,
 ai.amount_total_signed as invoice_amount, aipr.amount as payment_amount, 
 coalesce(xaipr.amount,0) as ret_ext, aipr.journal as journal, coalesce(string_agg(aipr.payment_date_real,','),'') as payment_date_real
 from account_invoice ai 
-left join (  
+left join ( 
 	select distinct aipr3.invoice_id as invoice_id, 
 	sum(ap.amount) as amount, string_agg(aj.name,',') as journal, 
 	string_agg(to_char(ap.payment_date_real,'dd-mm-yy'),',') as payment_date_real 
@@ -202,7 +208,7 @@ left join (
 	group by aipr3.invoice_id 
 ) as aipr 
 on aipr.invoice_id = ai.id 
-left join (  
+left join ( 
 	select distinct aipr3.invoice_id as invoice_id, 
 	sum(ap.amount) as amount 
 	from account_invoice_payment_rel aipr3
@@ -219,10 +225,10 @@ inner join sale_order so
 on so.id = aisor.sale_order_id and so.confirmation_date < %s 
 inner join res_partner rp 
 on rp.id = ai.partner_id 
-where ai.residual = 0 and ai.last_payment = %s 
+where ai.residual = 0 and ai.last_payment = %s and ai.journal_id in %s 
 group by ai.number, aipr.amount, rp.name, ai.amount_total_signed, xaipr.amount, 
 aipr.journal  """
-        params = (date_q, date_q, date_q_start, date_q)
+        params = (date_q, date_q, date_q_start, date_q, tuple(journals))
         self.env.cr.execute(query, params)
         for line in self.env.cr.dictfetchall():
             vals = {
@@ -241,6 +247,7 @@ aipr.journal  """
 
     def invoice_partial_paid(self,date):
         invoice_day_lines = []
+        journals = [x.id for x in self.journal_ids]
         hour_tz = self.get_hour_tz(self.env.user.tz)
         date_start_tz = datetime(date.year, date.month, date.day, 0, 0, 0) + timedelta(hours=hour_tz)
         date_stop_tz = datetime(date.year, date.month, date.day, 23, 59, 59) + timedelta(hours=hour_tz)
@@ -257,7 +264,7 @@ coalesce(ai.amount_total_signed,0) as invoice_amount, coalesce(aipr.amount,0) as
 coalesce(xxaipr.amount,0) as payment_total_amount, coalesce(coalesce(ai.amount_total_signed,0)-(coalesce(xxaipr.amount,0)),0) as residual, 
 coalesce(xaipr.amount,0) as ret_ext, aipr.journal as journal, coalesce(string_agg(aipr.payment_date_real,','),'') as payment_date_real
 from account_invoice ai 
-left join (  
+left join ( 
 	select distinct aipr3.invoice_id as invoice_id, 
 	sum(ap.amount) as amount, string_agg(aj.name,',') as journal, 
 	string_agg(to_char(ap.payment_date_real,'dd-mm-yy'),',') as payment_date_real 
@@ -269,7 +276,7 @@ left join (
 	group by aipr3.invoice_id 
 ) as aipr 
 on aipr.invoice_id = ai.id 
-left join (  
+left join ( 
 	select distinct aipr3.invoice_id as invoice_id, 
 	sum(ap.amount) as amount 
 	from account_invoice_payment_rel aipr3
@@ -297,11 +304,11 @@ inner join sale_order so
 on so.id = aisor.sale_order_id 
 inner join res_partner rp 
 on rp.id = ai.partner_id 
-where so.confirmation_date < %s and aipr.amount > 0 
+where so.confirmation_date < %s and aipr.amount > 0 and ai.journal_id in %s 
 and xxaipr.amount < ai.amount_total_signed 
 group by ai.number, aipr.amount, rp.name, ai.amount_total_signed, xaipr.amount, 
 aipr.journal, xxaipr.amount  """
-        params = (date_q, date_q, date_q, date_q_start)
+        params = (date_q, date_q, date_q, date_q_start, tuple(journals))
         self.env.cr.execute(query, params)
         for line in self.env.cr.dictfetchall():
             vals = {
@@ -321,6 +328,7 @@ aipr.journal, xxaipr.amount  """
 
     def journal_detail(self, date):
         detail_journal_amount = []
+        journals = [x.id for x in self.journal_ids]
         hour_tz = self.get_hour_tz(self.env.user.tz)
         date_start_tz = datetime(date.year, date.month, date.day, 0, 0, 0) + timedelta(hours=hour_tz)
         date_stop_tz = datetime(date.year, date.month, date.day, 23, 59, 59) + timedelta(hours=hour_tz)
@@ -336,12 +344,18 @@ from account_journal aj
 inner join (
 	select ap2.journal_id as journal_id, sum(ap2.amount) as amount 
 	from account_payment ap2 
-	where ap2.payment_date = '06-05-2023'
+    inner join account_invoice_payment_rel aipr 
+	on aipr.payment_id = ap2.id 
+	inner join account_invoice ai 
+	on ai.id = aipr.invoice_id 
+	inner join account_journal aj2 
+	on aj2.id = ai.journal_id and aj2.id in %s 
+	where ap2.payment_date = %s 
 	group by ap2.journal_id 
 ) as ap 
 on aj.id = ap.journal_id 
 group by aj.name, ap.amount """
-        params = (date_q)
+        params = (tuple(journals),date_q)
         self.env.cr.execute(query, params)
         for line in self.env.cr.dictfetchall():
             vals = {

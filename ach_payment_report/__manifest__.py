@@ -10,6 +10,7 @@
     'version': '0.1',
     'version': '1.1',
     'price': 5.00,
+    'currency': 'USD',
     'depends': ['base',
                 'sale',
                 'account',
