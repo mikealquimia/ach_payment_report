@@ -1,0 +1,16 @@
+<odoo>
+  <data>
+
+    <record id="account_payment_report_account_journal_view_form" model="ir.ui.view">
+        <field name="name">Payment Report in Account Journal</field>
+        <field name="model">account.journal</field>
+        <field name="inherit_id" ref="account.view_account_journal_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='type']" position="after">
+                <field name="ret_ext" attrs="{'invisible': [('type', 'not in', ['bank','cash'])]}"/>
+            </xpath>
+        </field>
+    </record>
+
+  </data>
+</odoo>

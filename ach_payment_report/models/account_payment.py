@@ -6,9 +6,4 @@ from odoo.exceptions import UserError, ValidationError
 class AccountPayment(models.Model):
     _inherit = 'account.payment'
 
-    document_date = fields.Date(string="Document date")
-
-class AccountPayment(models.Model):
-    _inherit = 'account.invoice'
-
-    mapped_sale = fields.Boolean(string="Mapped Sale")
+    payment_date_real = fields.Date(string="Date document")

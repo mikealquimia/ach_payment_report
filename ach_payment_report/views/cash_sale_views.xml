@@ -1,17 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-        <record id="sale_payment_view_form" model="ir.ui.view">
-            <field name="name">Sales Payments Report</field>
-            <field name="model">sale.payment</field>
+        <record id="cash_sale_view_form" model="ir.ui.view">
+            <field name="name">Cash Sale</field>
+            <field name="model">cash.sale</field>
             <field name="arch" type="xml">
-                <form string="Sales Payments Report">
+                <form string="Cash Sale">
                     <sheet>
                         <div class="oe_title">
-                            <h1>Sales Payments Report</h1>
+                            <h1>Cash Sale</h1>
                         </div>
                         <group>
                             <field name="date" required="1"/>
-                            <field name="journal_ids" required="1" widget="many2many_tags"/>
                             <field name="company_id" widget="selection"/>
                         </group>
                     </sheet>
@@ -23,15 +22,14 @@
             </field>
         </record>
 
-        <record id="sale_payment_action" model="ir.actions.act_window">
-            <field name="name">Sales Payments Report</field>
-            <field name="res_model">sale.payment</field>
+        <record id="cash_sale_action" model="ir.actions.act_window">
+            <field name="name">Cash Sale</field>
+            <field name="res_model">cash.sale</field>
             <field name="view_mode">form</field>
-            <field name="view_id" ref="sale_payment_view_form"/>
+            <field name="view_id" ref="cash_sale_view_form"/>
             <field name="target">new</field>
         </record>
 
-        <menuitem sequence="4" action="sale_payment_action" id="menu_sales_payments" parent="sale.sale_menu_root"/>
-
+        <menuitem sequence="3" action="cash_sale_action" id="menu_cash_sale" parent="sale.sale_menu_root"/>
 
 </odoo>
