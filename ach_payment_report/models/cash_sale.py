@@ -193,7 +193,7 @@ where ai.date_invoice = %s and ai.residual_signed = ai.amount_total_signed and a
         query = """
 select distinct string_agg(so.name,',') as order, ai.number as invoice, 
 rp.name as partner, sum(so.amount_total) as sale_amount, 
-ai.amount_total_signed as invoice_amount, aipr.amount as payment_amount, 
+ai.amount_total_signed as invoice_amount, coalesce(aipr.amount,0) as payment_amount, 
 coalesce(xaipr.amount,0) as ret_ext, aipr.journal as journal, coalesce(string_agg(aipr.payment_date_real,','),'') as payment_date_real
 from account_invoice ai 
 left join ( 
