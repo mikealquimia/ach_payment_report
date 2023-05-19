@@ -154,17 +154,29 @@ order by so.name; """
         date_q_start = datetime.strptime(str_date_start, '%Y-%m-%d %H:%M:%S')
         date_q_stop = datetime.strptime(str_date_stop, '%Y-%m-%d %H:%M:%S')
         query = """
-select ai.origin as order, ai.number as invoice, ai.amount_total_signed as invoice_amount, 
-rp.name as partner, so.amount_total as sale_amount, ai.residual_signed as residual 
+select distinct coalesce(string_agg(so.name,','),'') as order, ai.number as invoice, 
+rp.name as partner, coalesce(sum(so.amount_total),0) as sale_amount, 
+ai.amount_total_signed as invoice_amount, 
+sum(apx.amount) as payment_amount 
 from account_invoice ai 
 inner join res_partner rp 
 on rp.id = ai.partner_id 
+left join (
+	select aipr.invoice_id,
+	sum(ap2.amount) as amount
+	from account_invoice_payment_rel aipr 
+	inner join account_payment ap2
+	on ap2.id = aipr.payment_id and ap2.payment_date <= %s 
+	group by aipr.invoice_id  
+) as apx
+on apx.invoice_id = ai.id 
 inner join account_invoice_sale_order_rel aisor 
 on aisor.account_invoice_id = ai.id 
 inner join sale_order so 
 on so.id = aisor.sale_order_id and so.confirmation_date < %s 
-where ai.date_invoice = %s and ai.residual_signed = ai.amount_total_signed and ai.journal_id in %s """
-        params = (date_q_start, date_q, tuple(journals))
+where ai.date_invoice = %s and ai.journal_id in %s and apx.amount is null 
+group by ai.number, ai.amount_total_signed, rp.name """
+        params = (date_q, date_q_start, date_q, tuple(journals))
         self.env.cr.execute(query, params)
         for line in self.env.cr.dictfetchall():
             vals = {
@@ -173,74 +185,7 @@ where ai.date_invoice = %s and ai.residual_signed = ai.amount_total_signed and a
                 'partner': line['partner'],
                 'amount_total': line['sale_amount'],
                 'invoice_amount': line['invoice_amount'],
-                'residual': line['residual'],
-            }
-            invoice_day_lines.append(vals)
-        return invoice_day_lines
-
-    def invoice_paid(self,date):
-        invoice_day_lines = []
-        journals = [x.id for x in self.journal_ids]
-        hour_tz = self.get_hour_tz(self.env.user.tz)
-        date_start_tz = datetime(date.year, date.month, date.day, 0, 0, 0) + timedelta(hours=hour_tz)
-        date_stop_tz = datetime(date.year, date.month, date.day, 23, 59, 59) + timedelta(hours=hour_tz)
-        date_str = '%s-%s-%s' % (date_start_tz.year, date_start_tz.month, date_start_tz.day)
-        str_date_start = '%s-%s-%s %s:%s:%s' % (date_start_tz.year, date_start_tz.month, date_start_tz.day, date_start_tz.hour, date_start_tz.minute, date_start_tz.second)
-        str_date_stop = '%s-%s-%s %s:%s:%s' % (date_stop_tz.year, date_stop_tz.month, date_stop_tz.day, date_stop_tz.hour, date_stop_tz.minute, date_stop_tz.second)
-        date_q = datetime.strptime(date_str, '%Y-%m-%d')
-        date_q_start = datetime.strptime(str_date_start, '%Y-%m-%d %H:%M:%S')
-        date_q_stop = datetime.strptime(str_date_stop, '%Y-%m-%d %H:%M:%S')
-        query = """
-select distinct string_agg(so.name,',') as order, ai.number as invoice, 
-rp.name as partner, sum(so.amount_total) as sale_amount, 
-ai.amount_total_signed as invoice_amount, coalesce(aipr.amount,0) as payment_amount, 
-coalesce(xaipr.amount,0) as ret_ext, aipr.journal as journal, coalesce(string_agg(aipr.payment_date_real,','),'') as payment_date_real
-from account_invoice ai 
-left join ( 
-	select distinct aipr3.invoice_id as invoice_id, 
-	sum(ap.amount) as amount, string_agg(aj.name,',') as journal, 
-	string_agg(to_char(ap.payment_date_real,'dd-mm-yy'),',') as payment_date_real 
-	from account_invoice_payment_rel aipr3
-	inner join account_payment ap 
-	on ap.id = aipr3.payment_id and ap.payment_date = %s 
-	inner join account_journal aj 
-	on aj.id = ap.journal_id and aj.ret_ext is null 
-	group by aipr3.invoice_id 
-) as aipr 
-on aipr.invoice_id = ai.id 
-left join ( 
-	select distinct aipr3.invoice_id as invoice_id, 
-	sum(ap.amount) as amount 
-	from account_invoice_payment_rel aipr3
-	inner join account_payment ap 
-	on ap.id = aipr3.payment_id and ap.payment_date = %s 
-	inner join account_journal aj 
-	on aj.id = ap.journal_id and aj.ret_ext = true 
-	group by aipr3.invoice_id 
-) as xaipr 
-on xaipr.invoice_id = ai.id 
-inner join account_invoice_sale_order_rel aisor 
-on aisor.account_invoice_id = ai.id 
-inner join sale_order so 
-on so.id = aisor.sale_order_id and so.confirmation_date < %s 
-inner join res_partner rp 
-on rp.id = ai.partner_id 
-where ai.residual = 0 and ai.last_payment = %s and ai.journal_id in %s 
-group by ai.number, aipr.amount, rp.name, ai.amount_total_signed, xaipr.amount, 
-aipr.journal  """
-        params = (date_q, date_q, date_q_start, date_q, tuple(journals))
-        self.env.cr.execute(query, params)
-        for line in self.env.cr.dictfetchall():
-            vals = {
-                'order': line['order'],
-                'invoice': line['invoice'],
-                'partner': line['partner'],
-                'sale_amount': line['sale_amount'],
-                'invoice_amount': line['invoice_amount'],
-                'payment_amount': line['payment_amount'],
-                'ret_ext': line['ret_ext'],
-                'journal': line['journal'],
-                'date_payment': line['payment_date_real'],
+                'residual': line['invoice_amount'],
             }
             invoice_day_lines.append(vals)
         return invoice_day_lines
@@ -258,12 +203,25 @@ aipr.journal  """
         date_q_start = datetime.strptime(str_date_start, '%Y-%m-%d %H:%M:%S')
         date_q_stop = datetime.strptime(str_date_stop, '%Y-%m-%d %H:%M:%S')
         query = """
-select distinct string_agg(so.name,',') as order, ai.number as invoice, 
-rp.name as partner, coalesce(sum(so.amount_total),0) as sale_amount, 
-coalesce(ai.amount_total_signed,0) as invoice_amount, coalesce(aipr.amount,0) as payment_amount, 
-coalesce(xxaipr.amount,0) as payment_total_amount, coalesce(coalesce(ai.amount_total_signed,0)-(coalesce(xxaipr.amount,0)),0) as residual, 
-coalesce(xaipr.amount,0) as ret_ext, aipr.journal as journal, coalesce(string_agg(aipr.payment_date_real,','),'') as payment_date_real
+select distinct coalesce(string_agg(so.name,','),'') as order, ai.number as invoice, 
+string_agg(rp.name,',') as partner, coalesce(sum(so.amount_total),0) as sale_amount, 
+sum(ai.amount_total_signed) as invoice_amount, 
+sum(apx.amount) as payment_amount, 
+coalesce(sum(aipr.amount),0) as xpayment_amount, 
+coalesce(sum(xaipr.amount),0) as ret_ext, coalesce(string_agg(aipr.journal,','),'') as journal, coalesce(string_agg(aipr.payment_date_real,','),'') as payment_date_real, 
+sum(xxaipr.amount) as payment_day 
 from account_invoice ai 
+inner join res_partner rp 
+on rp.id = ai.partner_id 
+left join (
+	select aipr.invoice_id,
+	sum(ap2.amount) as amount
+	from account_invoice_payment_rel aipr 
+	inner join account_payment ap2
+	on ap2.id = aipr.payment_id and ap2.payment_date <= %s 
+	group by aipr.invoice_id  
+) as apx
+on apx.invoice_id = ai.id 
 left join ( 
 	select distinct aipr3.invoice_id as invoice_id, 
 	sum(ap.amount) as amount, string_agg(aj.name,',') as journal, 
@@ -287,28 +245,25 @@ left join (
 	group by aipr3.invoice_id 
 ) as xaipr 
 on xaipr.invoice_id = ai.id 
-left join (  
-	select distinct aipr4.invoice_id as invoice_id, 
-	sum(ap2.amount) as amount 
-	from account_invoice_payment_rel aipr4
-	inner join account_payment ap2 
-	on ap2.id = aipr4.payment_id and ap2.payment_date <= %s 
-	inner join account_journal aj2 
-	on aj2.id = ap2.journal_id and aj2.ret_ext is null 
-	group by aipr4.invoice_id 
+left join ( 
+	select distinct aipr3.invoice_id as invoice_id, 
+	sum(ap.amount) as amount 
+	from account_invoice_payment_rel aipr3
+	inner join account_payment ap 
+	on ap.id = aipr3.payment_id and ap.payment_date = %s 
+	group by aipr3.invoice_id 
 ) as xxaipr 
 on xxaipr.invoice_id = ai.id 
 inner join account_invoice_sale_order_rel aisor 
 on aisor.account_invoice_id = ai.id 
 inner join sale_order so 
-on so.id = aisor.sale_order_id 
-inner join res_partner rp 
-on rp.id = ai.partner_id 
-where so.confirmation_date < %s and aipr.amount > 0 and ai.journal_id in %s 
-and xxaipr.amount < ai.amount_total_signed 
-group by ai.number, aipr.amount, rp.name, ai.amount_total_signed, xaipr.amount, 
-aipr.journal, xxaipr.amount  """
-        params = (date_q, date_q, date_q, date_q_start, tuple(journals))
+on so.id = aisor.sale_order_id and so.confirmation_date < %s 
+where ai.date_invoice <= %s and ai.journal_id in %s 
+group by ai.number 
+having sum(apx.amount) < sum(ai.amount_total_signed) and sum(xxaipr.amount) > 0 
+and count(aisor.account_invoice_id)=1 
+"""
+        params = (date_q, date_q, date_q, date_q, date_q_start, date_q, tuple(journals))
         self.env.cr.execute(query, params)
         for line in self.env.cr.dictfetchall():
             vals = {
@@ -317,11 +272,254 @@ aipr.journal, xxaipr.amount  """
                 'partner': line['partner'],
                 'sale_amount': line['sale_amount'],
                 'invoice_amount': line['invoice_amount'],
-                'payment_amount': line['payment_amount'],
+                'payment_amount': line['xpayment_amount'],
                 'ret_ext': line['ret_ext'],
-                'residual': line['residual'],
+                'residual': line['invoice_amount']-line['payment_amount'],
                 'journal': line['journal'],
                 'date_payment': line['payment_date_real'],
+            }
+            invoice_day_lines.append(vals)
+        query2 = """
+select distinct count(aisor.account_invoice_id) as conteo, coalesce(string_agg(so.name,','),'') as order, ai.number as invoice, 
+string_agg(rp.name,',') as partner, coalesce(sum(so.amount_total),0) as sale_amount, 
+(sum(ai.amount_total_signed)/count(aisor.account_invoice_id)) as invoice_amount, 
+(sum(apx.amount)/count(aisor.account_invoice_id)) as payment_amount, 
+coalesce((sum(aipr.amount)/count(aisor.account_invoice_id)),0) as xpayment_amount, 
+coalesce(sum(xaipr.amount),0) as ret_ext, coalesce(string_agg(aipr.journal,','),'') as journal, coalesce(string_agg(aipr.payment_date_real,','),'') as payment_date_real, 
+sum(xxaipr.amount) as payment_day 
+from account_invoice ai 
+inner join res_partner rp 
+on rp.id = ai.partner_id 
+left join (
+	select aipr.invoice_id,
+	sum(ap2.amount) as amount
+	from account_invoice_payment_rel aipr 
+	inner join account_payment ap2
+	on ap2.id = aipr.payment_id and ap2.payment_date <= %s 
+	group by aipr.invoice_id  
+) as apx
+on apx.invoice_id = ai.id 
+left join ( 
+	select distinct aipr3.invoice_id as invoice_id, 
+	sum(ap.amount) as amount, string_agg(aj.name,',') as journal, 
+	string_agg(to_char(ap.payment_date_real,'dd-mm-yy'),',') as payment_date_real 
+	from account_invoice_payment_rel aipr3
+	inner join account_payment ap 
+	on ap.id = aipr3.payment_id and ap.payment_date = %s 
+	inner join account_journal aj 
+	on aj.id = ap.journal_id and aj.ret_ext is null 
+	group by aipr3.invoice_id 
+) as aipr 
+on aipr.invoice_id = ai.id 
+left join ( 
+	select distinct aipr3.invoice_id as invoice_id, 
+	sum(ap.amount) as amount 
+	from account_invoice_payment_rel aipr3
+	inner join account_payment ap 
+	on ap.id = aipr3.payment_id and ap.payment_date = %s 
+	inner join account_journal aj 
+	on aj.id = ap.journal_id and aj.ret_ext = true 
+	group by aipr3.invoice_id 
+) as xaipr 
+on xaipr.invoice_id = ai.id 
+left join ( 
+	select distinct aipr3.invoice_id as invoice_id, 
+	sum(ap.amount) as amount 
+	from account_invoice_payment_rel aipr3
+	inner join account_payment ap 
+	on ap.id = aipr3.payment_id and ap.payment_date = %s 
+	group by aipr3.invoice_id 
+) as xxaipr 
+on xxaipr.invoice_id = ai.id 
+inner join account_invoice_sale_order_rel aisor 
+on aisor.account_invoice_id = ai.id 
+inner join sale_order so 
+on so.id = aisor.sale_order_id and so.confirmation_date < %s 
+where ai.date_invoice <= %s and ai.journal_id in %s 
+group by ai.number 
+having sum(apx.amount) < sum(ai.amount_total_signed) and sum(xxaipr.amount) > 0 
+and count(aisor.account_invoice_id)>1 
+"""
+        params2 = (date_q, date_q, date_q, date_q, date_q_start, date_q, tuple(journals))
+        self.env.cr.execute(query2, params2)
+        for line2 in self.env.cr.dictfetchall():
+            vals = {
+                'order': line2['order'],
+                'invoice': line2['invoice'],
+                'partner': line2['partner'],
+                'sale_amount': line2['sale_amount'],
+                'invoice_amount': line2['invoice_amount'],
+                'payment_amount': line2['xpayment_amount'],
+                'ret_ext': line2['ret_ext'],
+                'residual': line2['invoice_amount']-line2['payment_amount'],
+                'journal': line2['journal'],
+                'date_payment': line2['payment_date_real'],
+            }
+            invoice_day_lines.append(vals)
+        return invoice_day_lines
+
+    def invoice_paid(self,date):
+        invoice_day_lines = []
+        journals = [x.id for x in self.journal_ids]
+        hour_tz = self.get_hour_tz(self.env.user.tz)
+        date_start_tz = datetime(date.year, date.month, date.day, 0, 0, 0) + timedelta(hours=hour_tz)
+        date_stop_tz = datetime(date.year, date.month, date.day, 23, 59, 59) + timedelta(hours=hour_tz)
+        date_str = '%s-%s-%s' % (date_start_tz.year, date_start_tz.month, date_start_tz.day)
+        str_date_start = '%s-%s-%s %s:%s:%s' % (date_start_tz.year, date_start_tz.month, date_start_tz.day, date_start_tz.hour, date_start_tz.minute, date_start_tz.second)
+        str_date_stop = '%s-%s-%s %s:%s:%s' % (date_stop_tz.year, date_stop_tz.month, date_stop_tz.day, date_stop_tz.hour, date_stop_tz.minute, date_stop_tz.second)
+        date_q = datetime.strptime(date_str, '%Y-%m-%d')
+        date_q_start = datetime.strptime(str_date_start, '%Y-%m-%d %H:%M:%S')
+        date_q_stop = datetime.strptime(str_date_stop, '%Y-%m-%d %H:%M:%S')
+        query = """
+select distinct coalesce(string_agg(so.name,','),'') as order, ai.number as invoice, 
+string_agg(rp.name,',') as partner, coalesce(sum(so.amount_total),0) as sale_amount, 
+sum(ai.amount_total_signed) as invoice_amount, 
+sum(apx.amount) as payment_amount, 
+coalesce(sum(aipr.amount),0) as xpayment_amount, 
+coalesce(sum(xaipr.amount),0) as ret_ext, coalesce(string_agg(aipr.journal,','),'') as journal, coalesce(string_agg(aipr.payment_date_real,','),'') as payment_date_real, 
+sum(xxaipr.amount) as payment_day 
+from account_invoice ai 
+inner join res_partner rp 
+on rp.id = ai.partner_id 
+left join (
+	select aipr.invoice_id,
+	sum(ap2.amount) as amount
+	from account_invoice_payment_rel aipr 
+	inner join account_payment ap2
+	on ap2.id = aipr.payment_id and ap2.payment_date <= %s 
+	group by aipr.invoice_id  
+) as apx
+on apx.invoice_id = ai.id 
+left join ( 
+	select distinct aipr3.invoice_id as invoice_id, 
+	sum(ap.amount) as amount, string_agg(aj.name,',') as journal, 
+	string_agg(to_char(ap.payment_date_real,'dd-mm-yy'),',') as payment_date_real 
+	from account_invoice_payment_rel aipr3
+	inner join account_payment ap 
+	on ap.id = aipr3.payment_id and ap.payment_date = %s 
+	inner join account_journal aj 
+	on aj.id = ap.journal_id and aj.ret_ext is null 
+	group by aipr3.invoice_id 
+) as aipr 
+on aipr.invoice_id = ai.id 
+left join ( 
+	select distinct aipr3.invoice_id as invoice_id, 
+	sum(ap.amount) as amount 
+	from account_invoice_payment_rel aipr3
+	inner join account_payment ap 
+	on ap.id = aipr3.payment_id and ap.payment_date = %s 
+	inner join account_journal aj 
+	on aj.id = ap.journal_id and aj.ret_ext = true 
+	group by aipr3.invoice_id 
+) as xaipr 
+on xaipr.invoice_id = ai.id 
+left join ( 
+	select distinct aipr3.invoice_id as invoice_id, 
+	sum(ap.amount) as amount 
+	from account_invoice_payment_rel aipr3
+	inner join account_payment ap 
+	on ap.id = aipr3.payment_id and ap.payment_date = %s 
+	group by aipr3.invoice_id 
+) as xxaipr 
+on xxaipr.invoice_id = ai.id 
+inner join account_invoice_sale_order_rel aisor 
+on aisor.account_invoice_id = ai.id 
+inner join sale_order so 
+on so.id = aisor.sale_order_id and so.confirmation_date < %s 
+where ai.date_invoice <= %s and ai.journal_id in %s 
+group by ai.number 
+having sum(apx.amount) = sum(ai.amount_total_signed) and sum(xxaipr.amount) > 0 
+and count(aisor.account_invoice_id)=1 """
+        params = (date_q, date_q, date_q, date_q, date_q_start, date_q, tuple(journals))
+        self.env.cr.execute(query, params)
+        for line in self.env.cr.dictfetchall():
+            vals = {
+                'order': line['order'],
+                'invoice': line['invoice'],
+                'partner': line['partner'],
+                'sale_amount': line['sale_amount'],
+                'invoice_amount': line['invoice_amount'],
+                'payment_amount': line['xpayment_amount'],
+                'ret_ext': line['ret_ext'],
+                'journal': line['journal'],
+                'residual': line['invoice_amount']-line['payment_amount'],
+                'date_payment': line['payment_date_real'],
+            }
+            invoice_day_lines.append(vals)
+        query2 = """
+select distinct count(aisor.account_invoice_id) as conteo, coalesce(string_agg(so.name,','),'') as order, ai.number as invoice, 
+string_agg(rp.name,',') as partner, coalesce(sum(so.amount_total),0) as sale_amount,  
+(sum(ai.amount_total_signed)/count(aisor.account_invoice_id)) as invoice_amount, 
+(sum(apx.amount)/count(aisor.account_invoice_id)) as payment_amount, 
+coalesce((sum(aipr.amount)/count(aisor.account_invoice_id)),0) as xpayment_amount, 
+coalesce(sum(xaipr.amount),0) as ret_ext, coalesce(string_agg(aipr.journal,','),'') as journal, coalesce(string_agg(aipr.payment_date_real,','),'') as payment_date_real, 
+sum(xxaipr.amount) as payment_day 
+from account_invoice ai 
+inner join res_partner rp 
+on rp.id = ai.partner_id 
+left join (
+	select aipr.invoice_id,
+	sum(ap2.amount) as amount
+	from account_invoice_payment_rel aipr 
+	inner join account_payment ap2
+	on ap2.id = aipr.payment_id and ap2.payment_date <= %s 
+	group by aipr.invoice_id  
+) as apx
+on apx.invoice_id = ai.id 
+left join ( 
+	select distinct aipr3.invoice_id as invoice_id, 
+	sum(ap.amount) as amount, string_agg(aj.name,',') as journal, 
+	string_agg(to_char(ap.payment_date_real,'dd-mm-yy'),',') as payment_date_real 
+	from account_invoice_payment_rel aipr3
+	inner join account_payment ap 
+	on ap.id = aipr3.payment_id and ap.payment_date = %s 
+	inner join account_journal aj 
+	on aj.id = ap.journal_id and aj.ret_ext is null 
+	group by aipr3.invoice_id 
+) as aipr 
+on aipr.invoice_id = ai.id 
+left join ( 
+	select distinct aipr3.invoice_id as invoice_id, 
+	sum(ap.amount) as amount 
+	from account_invoice_payment_rel aipr3
+	inner join account_payment ap 
+	on ap.id = aipr3.payment_id and ap.payment_date = %s 
+	inner join account_journal aj 
+	on aj.id = ap.journal_id and aj.ret_ext = true 
+	group by aipr3.invoice_id 
+) as xaipr 
+on xaipr.invoice_id = ai.id 
+left join ( 
+	select distinct aipr3.invoice_id as invoice_id, 
+	sum(ap.amount) as amount 
+	from account_invoice_payment_rel aipr3
+	inner join account_payment ap 
+	on ap.id = aipr3.payment_id and ap.payment_date = %s 
+	group by aipr3.invoice_id 
+) as xxaipr 
+on xxaipr.invoice_id = ai.id 
+inner join account_invoice_sale_order_rel aisor 
+on aisor.account_invoice_id = ai.id 
+inner join sale_order so 
+on so.id = aisor.sale_order_id and so.confirmation_date < %s 
+where ai.date_invoice <= %s and ai.journal_id in %s 
+group by ai.number 
+having sum(apx.amount) = sum(ai.amount_total_signed) and sum(xxaipr.amount) > 0 
+and count(aisor.account_invoice_id)>1 """
+        params2 = (date_q, date_q, date_q, date_q, date_q_start, date_q, tuple(journals))
+        self.env.cr.execute(query2, params2)
+        for line2 in self.env.cr.dictfetchall():
+            vals = {
+                'order': line2['order'],
+                'invoice': line2['invoice'],
+                'partner': line2['partner'],
+                'sale_amount': line2['sale_amount'],
+                'invoice_amount': line2['invoice_amount'],
+                'payment_amount': line2['xpayment_amount'],
+                'ret_ext': line2['ret_ext'],
+                'journal': line2['journal'],
+                'residual': line2['invoice_amount']-line2['payment_amount'],
+                'date_payment': line2['payment_date_real'],
             }
             invoice_day_lines.append(vals)
         return invoice_day_lines

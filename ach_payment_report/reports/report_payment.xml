@@ -51,7 +51,7 @@
                                                 <span t-esc="sale_line['amount']" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: o.company_id.currency_id}"/>
                                                 <t t-set="total_sale_amount" t-value="total_sale_amount+sale_line['amount']"/>
                                             </td>
-                                            <td style="text-align:right;background-color:white">
+                                            <td style="text-align:right;background-color:white; color:green">
                                                 <span t-esc="sale_line['advance']" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: o.company_id.currency_id}"/>
                                                 <t t-set="total_sale_advance" t-value="total_sale_advance+sale_line['advance']"/>
                                             </td>
@@ -77,13 +77,13 @@
                                             <td style="text-align:right">
                                                 <span t-esc="total_sale_amount" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: o.company_id.currency_id}"/>
                                             </td>
-                                            <td style="text-align:right">
+                                            <td style="text-align:right; color:green">
                                                 <span t-esc="total_sale_advance" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: o.company_id.currency_id}"/>
                                             </td>
                                             <td style="text-align:right;color: red">
                                                 <span t-esc="total_sale_residual" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: o.company_id.currency_id}"/>
                                             </td>
-                                            <td style="text-align:right">
+                                            <td style="text-align:right; color:green">
                                                 <span t-esc="total_sale_ext_ret" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: o.company_id.currency_id}"/>
                                             </td>
                                             <td colspan="2">
@@ -137,11 +137,11 @@
                                                 <span t-esc="invoice_line['invoice_amount']" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: o.company_id.currency_id}"/>
                                                 <t t-set="total_invoice_amount" t-value="total_invoice_amount+invoice_line['invoice_amount']"/>
                                             </td>
-                                            <td style="text-align:right;background-color:white">
+                                            <td style="text-align:right;background-color:white; color:green">
                                                 <span t-esc="invoice_line['payment_amount']" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: o.company_id.currency_id}"/>
                                                 <t t-set="total_payment_amount" t-value="total_payment_amount+invoice_line['payment_amount']"/>
                                             </td>
-                                            <td style="text-align:right;background-color:white">
+                                            <td style="text-align:right;background-color:white; color:green">
                                                 <span t-esc="invoice_line['ret_ext']" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: o.company_id.currency_id}"/>
                                                 <t t-set="total_ext_ret" t-value="total_ext_ret+invoice_line['ret_ext']"/>
                                             </td>
@@ -166,10 +166,10 @@
                                             <td style="text-align:right">
                                                 <span t-esc="total_invoice_amount" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: o.company_id.currency_id}"/>
                                             </td>
-                                            <td style="text-align:right">
+                                            <td style="text-align:right; color:green">
                                                 <span t-esc="total_payment_amount" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: o.company_id.currency_id}"/>
                                             </td>
-                                            <td style="text-align:right;">
+                                            <td style="text-align:right; color:green">
                                                 <span t-esc="total_ext_ret" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: o.company_id.currency_id}"/>
                                             </td>
                                             <td style="text-align:right;color: red">
@@ -258,6 +258,7 @@
                                             <th style="font-size: 80%; color: black; vertical-align:middle; text-align:center"><strong>Invoiced</strong></th>
                                             <th style="font-size: 80%; color: black; vertical-align:middle; text-align:center"><strong>Payment</strong></th>
                                             <th style="font-size: 80%; color: black; vertical-align:middle; text-align:center"><strong>Ret/Ext</strong></th>
+                                            <th style="font-size: 80%; color: black; vertical-align:middle; text-align:center"><strong>Residual</strong></th>
                                             <th style="font-size: 80%; color: black; vertical-align:middle; text-align:center"><strong>Journal</strong></th>
                                             <th style="font-size: 80%; color: black; vertical-align:middle; text-align:center"><strong>Date Document</strong></th>
                                         </tr>
@@ -267,6 +268,7 @@
                                         <t t-set="total_invoice_amount" t-value="0"/>
                                         <t t-set="total_payment_amount" t-value="0"/>
                                         <t t-set="total_ext_ret" t-value="0"/>
+                                        <t t-set="total_residual" t-value="0"/>
                                         <t t-set="count" t-value="0"/>
                                         <tr t-foreach="invoice_without_residual" t-as="invoice_line">
                                             <t t-set="count" t-value="count+1"/>
@@ -287,13 +289,17 @@
                                                 <span t-esc="invoice_line['invoice_amount']" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: o.company_id.currency_id}"/>
                                                 <t t-set="total_invoice_amount" t-value="total_invoice_amount+invoice_line['invoice_amount']"/>
                                             </td>
-                                            <td style="text-align:right;background-color:white">
+                                            <td style="text-align:right;background-color:white; color:green">
                                                 <span t-esc="invoice_line['payment_amount']" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: o.company_id.currency_id}"/>
                                                 <t t-set="total_payment_amount" t-value="total_payment_amount+invoice_line['payment_amount']"/>
                                             </td>
-                                            <td style="text-align:right;background-color:white;color:red">
+                                            <td style="text-align:right;background-color:white; color:green">
                                                 <span t-esc="invoice_line['ret_ext']" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: o.company_id.currency_id}"/>
                                                 <t t-set="total_ext_ret" t-value="total_ext_ret+invoice_line['ret_ext']"/>
+                                            </td>
+                                            <td style="text-align:right;background-color:white;color:red">
+                                                <span t-esc="invoice_line['residual']" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: o.company_id.currency_id}"/>
+                                                <t t-set="total_residual" t-value="total_residual+invoice_line['residual']"/>
                                             </td>
                                             <td style="text-align:center;background-color:white">
                                                 <span t-esc="invoice_line['journal']"/>
@@ -312,11 +318,14 @@
                                             <td style="text-align:right">
                                                 <span t-esc="total_invoice_amount" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: o.company_id.currency_id}"/>
                                             </td>
-                                            <td style="text-align:right">
+                                            <td style="text-align:right; color:green">
                                                 <span t-esc="total_payment_amount" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: o.company_id.currency_id}"/>
                                             </td>
-                                            <td style="text-align:right;">
+                                            <td style="text-align:right; color:green">
                                                 <span t-esc="total_ext_ret" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: o.company_id.currency_id}"/>
+                                            </td>
+                                            <td style="text-align:right; color:red">
+                                                <span t-esc="total_residual" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: o.company_id.currency_id}"/>
                                             </td>
                                             <td colspan="2">
                                                 <span/>
@@ -349,7 +358,7 @@
                                             <td>
                                                 Total:
                                             </td>
-                                            <td style="text-align:right">
+                                            <td style="text-align:right; color:green">
                                                 <span t-esc="total_amount" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: o.company_id.currency_id}"/>
                                             </td>
                                         </tr>
