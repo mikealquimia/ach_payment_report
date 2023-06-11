@@ -50,7 +50,7 @@ msgstr "<strong>Facturado</strong>"
 #. module: ach_payment_report
 #: model_terms:ir.ui.view,arch_db:ach_payment_report.payment_report
 msgid "<strong>Journal</strong>"
-msgstr "<strong>Diario</strong>"
+msgstr "<strong>Método de Pago</strong>"
 
 #. module: ach_payment_report
 #: model_terms:ir.ui.view,arch_db:ach_payment_report.payment_report
@@ -126,7 +126,7 @@ msgstr "Fecha Documento"
 #. module: ach_payment_report
 #: model_terms:ir.ui.view,arch_db:ach_payment_report.payment_report
 msgid "Detail Payment for Journal"
-msgstr "Detalle de Pagos por Diario"
+msgstr "Detalle de Pagos por Método de Pago"
 
 #. module: ach_payment_report
 #: model:ir.model.fields,field_description:ach_payment_report.field_cash_sale__display_name
@@ -162,7 +162,7 @@ msgstr "Facturas Pagas Parcialmente (venta confirmada en otro día)"
 #: model:ir.model,name:ach_payment_report.model_account_journal
 #: model:ir.model.fields,field_description:ach_payment_report.field_cash_sale__journal_ids
 msgid "Journal"
-msgstr "Diario"
+msgstr "Método de Pago"
 
 #. module: ach_payment_report
 #: model:ir.model.fields,field_description:ach_payment_report.field_cash_sale____last_update

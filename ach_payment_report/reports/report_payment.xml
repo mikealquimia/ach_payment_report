@@ -26,9 +26,9 @@
                                             <th style="font-size: 80%; color: black; vertical-align:middle; text-align:center"><strong>Payment</strong></th>
                                             <th style="font-size: 80%; color: black; vertical-align:middle; text-align:center"><strong>Residual</strong></th>
                                             <th style="font-size: 80%; color: black; vertical-align:middle; text-align:center"><strong>Ext/Ret</strong></th>
-                                            <th style="font-size: 80%; color: black; vertical-align:middle; text-align:center"><strong>Journal</strong></th>
+                                            <th style="font-size: 80%; color: black; vertical-align:middle; text-align:center"><strong>Forma de Pago</strong></th>
                                             <th style="font-size: 80%; color: black; vertical-align:middle; text-align:center"><strong>Date Document</strong></th>
-                                            <th style="font-size: 80%; color: black; vertical-align:middle; text-align:center"><strong>Document</strong></th>
+                                            <th style="font-size: 80%; color: black; vertical-align:middle; text-align:center"><strong>Documento</strong></th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -109,9 +109,9 @@
                                             <th style="font-size: 80%; color: black; vertical-align:middle; text-align:center"><strong>Payment</strong></th>
                                             <th style="font-size: 80%; color: black; vertical-align:middle; text-align:center"><strong>Ret/Ext</strong></th>
                                             <th style="font-size: 80%; color: black; vertical-align:middle; text-align:center"><strong>Residual</strong></th>
-                                            <th style="font-size: 80%; color: black; vertical-align:middle; text-align:center"><strong>Journal</strong></th>
+                                            <th style="font-size: 80%; color: black; vertical-align:middle; text-align:center"><strong>Forma de Pago</strong></th>
                                             <th style="font-size: 80%; color: black; vertical-align:middle; text-align:center"><strong>Date Document</strong></th>
-                                            <th style="font-size: 80%; color: black; vertical-align:middle; text-align:center"><strong>Document</strong></th>
+                                            <th style="font-size: 80%; color: black; vertical-align:middle; text-align:center"><strong>Documento</strong></th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -181,7 +181,7 @@
                                             <td style="text-align:right;color: red">
                                                 <span t-esc="total_residual" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: o.company_id.currency_id}"/>
                                             </td>
-                                            <td colspan="2">
+                                            <td colspan="3">
                                                 <span/>
                                             </td>
                                         </tr>
@@ -260,9 +260,9 @@
                                             <th style="font-size: 80%; color: black; vertical-align:middle; text-align:center"><strong>Payment</strong></th>
                                             <th style="font-size: 80%; color: black; vertical-align:middle; text-align:center"><strong>Ret/Ext</strong></th>
                                             <th style="font-size: 80%; color: black; vertical-align:middle; text-align:center"><strong>Residual</strong></th>
-                                            <th style="font-size: 80%; color: black; vertical-align:middle; text-align:center"><strong>Journal</strong></th>
+                                            <th style="font-size: 80%; color: black; vertical-align:middle; text-align:center"><strong>Forma de Pago</strong></th>
                                             <th style="font-size: 80%; color: black; vertical-align:middle; text-align:center"><strong>Date Document</strong></th>
-                                            <th style="font-size: 80%; color: black; vertical-align:middle; text-align:center"><strong>Document</strong></th>
+                                            <th style="font-size: 80%; color: black; vertical-align:middle; text-align:center"><strong>Documento</strong></th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -339,7 +339,7 @@
                                     </tbody>
                                 </table>
                                 <br/>
-                                <h3>Detail Payment for Journal</h3>
+                                <h3>Detalle por Forma de Pago</h3>
                                 <table class="table table-sm table-bordered">
                                     <thead>
                                         <tr style="background-color: gray;">
