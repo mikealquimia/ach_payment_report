@@ -138,7 +138,8 @@ order by so.name; """
                 'residual': line['residual_total'],
                 'ext_ret': line['retention'],
                 'journal_id': str(line['advance_journal'])+ str(line['payment_invoice_journal']),
-                'date_payment': line['payment_date_real']+'('+line['payment_document']+')',
+                'date_payment': line['payment_date_real'],
+                'payment_document':line['payment_document'],
             }
             so_day_lines.append(vals)
         return so_day_lines
@@ -280,7 +281,8 @@ and count(aisor.account_invoice_id)=1
                 'ret_ext': line['ret_ext'],
                 'residual': line['invoice_amount']-line['payment_amount'],
                 'journal': line['journal'],
-                'date_payment': line['payment_date_real'] + '('+line['payment_date_real']+')',
+                'date_payment': line['payment_date_real'],
+                'payment_document':line['payment_document'],
             }
             invoice_day_lines.append(vals)
         query2 = """
@@ -359,7 +361,8 @@ and count(aisor.account_invoice_id)>1
                 'ret_ext': line2['ret_ext'],
                 'residual': line2['invoice_amount']-line2['payment_amount'],
                 'journal': line2['journal'],
-                'date_payment': line2['payment_date_real'] + '('+line2['payment_date_real']+')',
+                'date_payment': line2['payment_date_real'],
+                'payment_document':line['payment_document'],
             }
             invoice_day_lines.append(vals)
         return invoice_day_lines
@@ -451,7 +454,8 @@ and count(aisor.account_invoice_id)=1 """
                 'ret_ext': line['ret_ext'],
                 'journal': line['journal'],
                 'residual': line['invoice_amount']-line['payment_amount'],
-                'date_payment': line['payment_date_real'] + '('+line['payment_date_real']+')',
+                'date_payment': line['payment_date_real'],
+                'payment_document':line['payment_document'],
             }
             invoice_day_lines.append(vals)
         query2 = """
@@ -529,7 +533,8 @@ and count(aisor.account_invoice_id)>1 """
                 'ret_ext': line2['ret_ext'],
                 'journal': line2['journal'],
                 'residual': line2['invoice_amount']-line2['payment_amount'],
-                'date_payment': line2['payment_date_real'] + '('+line2['payment_date_real']+')',
+                'date_payment': line2['payment_date_real'],
+                'payment_document':line['payment_document'],
             }
             invoice_day_lines.append(vals)
         return invoice_day_lines

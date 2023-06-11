@@ -28,6 +28,7 @@
                                             <th style="font-size: 80%; color: black; vertical-align:middle; text-align:center"><strong>Ext/Ret</strong></th>
                                             <th style="font-size: 80%; color: black; vertical-align:middle; text-align:center"><strong>Journal</strong></th>
                                             <th style="font-size: 80%; color: black; vertical-align:middle; text-align:center"><strong>Date Document</strong></th>
+                                            <th style="font-size: 80%; color: black; vertical-align:middle; text-align:center"><strong>Document</strong></th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -69,6 +70,9 @@
                                             <td style="text-align:center;background-color:white">
                                                 <span t-esc="sale_line['date_payment']"/>
                                             </td>
+                                            <td style="text-align:center;background-color:white">
+                                                <span t-esc="invoice_line['payment_document']"/>
+                                            </td>
                                         </tr>
                                         <tr>
                                             <td colspan="3">
@@ -86,7 +90,7 @@
                                             <td style="text-align:right; color:green">
                                                 <span t-esc="total_sale_ext_ret" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: o.company_id.currency_id}"/>
                                             </td>
-                                            <td colspan="2">
+                                            <td colspan="3">
                                                 <span/>
                                             </td>
                                         </tr>
@@ -107,6 +111,7 @@
                                             <th style="font-size: 80%; color: black; vertical-align:middle; text-align:center"><strong>Residual</strong></th>
                                             <th style="font-size: 80%; color: black; vertical-align:middle; text-align:center"><strong>Journal</strong></th>
                                             <th style="font-size: 80%; color: black; vertical-align:middle; text-align:center"><strong>Date Document</strong></th>
+                                            <th style="font-size: 80%; color: black; vertical-align:middle; text-align:center"><strong>Document</strong></th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -153,6 +158,9 @@
                                             <td style="text-align:center;background-color:white">
                                                 <span t-esc="invoice_line['date_payment']"/>
                                             </td>
+                                            <td style="text-align:center;background-color:white">
+                                                <span t-esc="invoice_line['payment_document']"/>
+                                            </td>
                                         </tr>
                                         <tr>
                                             <td colspan="3">
@@ -173,7 +181,7 @@
                                             <td style="text-align:right;color: red">
                                                 <span t-esc="total_residual" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: o.company_id.currency_id}"/>
                                             </td>
-                                            <td>
+                                            <td colspan="2">
                                                 <span/>
                                             </td>
                                         </tr>
@@ -254,6 +262,7 @@
                                             <th style="font-size: 80%; color: black; vertical-align:middle; text-align:center"><strong>Residual</strong></th>
                                             <th style="font-size: 80%; color: black; vertical-align:middle; text-align:center"><strong>Journal</strong></th>
                                             <th style="font-size: 80%; color: black; vertical-align:middle; text-align:center"><strong>Date Document</strong></th>
+                                            <th style="font-size: 80%; color: black; vertical-align:middle; text-align:center"><strong>Document</strong></th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -300,6 +309,9 @@
                                             <td style="text-align:center;background-color:white">
                                                 <span t-esc="invoice_line['date_payment']"/>
                                             </td>
+                                            <td style="text-align:center;background-color:white">
+                                                <span t-esc="invoice_line['payment_document']"/>
+                                            </td>
                                         </tr>
                                         <tr>
                                             <td colspan="3">
@@ -320,7 +332,7 @@
                                             <td style="text-align:right; color:red">
                                                 <span t-esc="total_residual" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: o.company_id.currency_id}"/>
                                             </td>
-                                            <td colspan="2">
+                                            <td colspan="3">
                                                 <span/>
                                             </td>
                                         </tr>
