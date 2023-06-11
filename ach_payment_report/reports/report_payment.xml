@@ -92,8 +92,6 @@
                                         </tr>
                                     </tbody>
                                 </table>
-                            </div>
-                            <div class="col-6">
                                 <h3>Invoice partial paid (confirmation date sale order other day)</h3>
                                 <t t-set="invoice_without_residual" t-value="o.invoice_partial_paid(o.date)"/>
                                 <table class="table table-sm table-bordered" >
@@ -182,9 +180,6 @@
                                     </tbody>
                                 </table>
                             </div>
-                        </div>
-                        <br/>
-                        <div class="row">
                             <div class="col-6">
                                 <h3>Invoice of day without payment (confirmation date sale order other day)</h3>
                                 <table class="table table-sm table-bordered" >
@@ -244,8 +239,6 @@
                                         </tr>
                                     </tbody>
                                 </table>
-                            </div>
-                            <div class="col-6">
                                 <h3>Invoice paid (confirmation date sale order other day)</h3>
                                 <t t-set="invoice_without_residual" t-value="o.invoice_paid(o.date)"/>
                                 <table class="table table-sm table-bordered" >

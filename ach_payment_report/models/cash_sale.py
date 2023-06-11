@@ -42,7 +42,7 @@ coalesce(sum(invoices.ai_pay),0) as payment_invoice_amount, coalesce(string_agg(
 coalesce(coalesce(sum(payment_so.amou), 0)+coalesce(sum(invoices.amou_total), 0),0) as payment_total, 
 coalesce(sum(xinvoices.ai_pay),0) as retention, 
 so.amount_total-(coalesce(coalesce(sum(payment_so.amou),0)+coalesce(sum(invoices.amou_total),0)+coalesce(sum(xinvoices.ai_pay),0),0)) as residual_total, 
-coalesce(string_agg(invoices.payment_date_real,','),'') as payment_date_real 
+coalesce(string_agg(invoices.payment_date_real,','),'') as payment_date_real, coalesce(string_agg(invoices.payment_document,','),'') as payment_document 
 from sale_order so 
 inner join res_partner rp on rp.id = so.partner_id 
 left join ( 
@@ -66,8 +66,9 @@ left join (
 on journals.id = payment_so.journal_id 
 left join account_invoice_sale_order_rel aisor on aisor.sale_order_id = so.id 
 left join ( 
-	select ai.number as numb, sum(payment_ai.amou) as ai_pay, ai.id, string_agg(journals2.paname,',') as j2_name, string_agg(to_char(payment_ai.payment_date_real,'dd-mm-yy'),',') as payment_date_real, sum(payment_ai3.amou) as amou_total 
-	from account_invoice ai 
+	select ai.number as numb, sum(payment_ai.amou) as ai_pay, ai.id, string_agg(journals2.paname,',') as j2_name, string_agg(to_char(payment_ai.payment_date_real,'dd-mm-yy'),',') as payment_date_real, sum(payment_ai3.amou) as amou_total, 
+	string_agg(payment_ai.payment_document,',') as payment_document 
+    from account_invoice ai 
 	left join account_invoice_payment_rel aipr on aipr.invoice_id = ai.id 
 	left join ( 
 		select ap3.amount as amou, ap3.id 
@@ -77,7 +78,8 @@ left join (
 		) as payment_ai3 
 	on payment_ai3.id = aipr.payment_id 
 	left join ( 
-		select ap2.amount as amou, ap2.id, ap2.journal_id as journal_id2, ap2.payment_date_real as payment_date_real 
+		select ap2.amount as amou, ap2.id, ap2.journal_id as journal_id2, ap2.payment_date_real as payment_date_real, 
+        ap2.description_gp as payment_document 
 		from account_payment ap2 
 		where ap2.payment_date = %s 
 		group by ap2.id 
@@ -136,7 +138,7 @@ order by so.name; """
                 'residual': line['residual_total'],
                 'ext_ret': line['retention'],
                 'journal_id': str(line['advance_journal'])+ str(line['payment_invoice_journal']),
-                'date_payment': line['payment_date_real'],
+                'date_payment': line['payment_date_real']+'('+line['payment_document']+')',
             }
             so_day_lines.append(vals)
         return so_day_lines
@@ -209,6 +211,7 @@ sum(ai.amount_total_signed) as invoice_amount,
 sum(apx.amount) as payment_amount, 
 coalesce(sum(aipr.amount),0) as xpayment_amount, 
 coalesce(sum(xaipr.amount),0) as ret_ext, coalesce(string_agg(aipr.journal,','),'') as journal, coalesce(string_agg(aipr.payment_date_real,','),'') as payment_date_real, 
+coalesce(string_agg(aipr.payment_document,','),'') as payment_document, 
 sum(xxaipr.amount) as payment_day 
 from account_invoice ai 
 inner join res_partner rp 
@@ -225,7 +228,8 @@ on apx.invoice_id = ai.id
 left join ( 
 	select distinct aipr3.invoice_id as invoice_id, 
 	sum(ap.amount) as amount, string_agg(aj.name,',') as journal, 
-	string_agg(to_char(ap.payment_date_real,'dd-mm-yy'),',') as payment_date_real 
+	string_agg(to_char(ap.payment_date_real,'dd-mm-yy'),',') as payment_date_real, 
+    string_agg(ap.description_gp,',') as payment_document 
 	from account_invoice_payment_rel aipr3
 	inner join account_payment ap 
 	on ap.id = aipr3.payment_id and ap.payment_date = %s 
@@ -276,7 +280,7 @@ and count(aisor.account_invoice_id)=1
                 'ret_ext': line['ret_ext'],
                 'residual': line['invoice_amount']-line['payment_amount'],
                 'journal': line['journal'],
-                'date_payment': line['payment_date_real'],
+                'date_payment': line['payment_date_real'] + '('+line['payment_date_real']+')',
             }
             invoice_day_lines.append(vals)
         query2 = """
@@ -286,6 +290,7 @@ string_agg(rp.name,',') as partner, coalesce(sum(so.amount_total),0) as sale_amo
 (sum(apx.amount)/count(aisor.account_invoice_id)) as payment_amount, 
 coalesce((sum(aipr.amount)/count(aisor.account_invoice_id)),0) as xpayment_amount, 
 coalesce(sum(xaipr.amount),0) as ret_ext, coalesce(string_agg(aipr.journal,','),'') as journal, coalesce(string_agg(aipr.payment_date_real,','),'') as payment_date_real, 
+coalesce(string_agg(aipr.payment_document,','),'') as payment_document, 
 sum(xxaipr.amount) as payment_day 
 from account_invoice ai 
 inner join res_partner rp 
@@ -302,7 +307,8 @@ on apx.invoice_id = ai.id
 left join ( 
 	select distinct aipr3.invoice_id as invoice_id, 
 	sum(ap.amount) as amount, string_agg(aj.name,',') as journal, 
-	string_agg(to_char(ap.payment_date_real,'dd-mm-yy'),',') as payment_date_real 
+	string_agg(to_char(ap.payment_date_real,'dd-mm-yy'),',') as payment_date_real, 
+    string_agg(ap.description_gp,',') as payment_document 
 	from account_invoice_payment_rel aipr3
 	inner join account_payment ap 
 	on ap.id = aipr3.payment_id and ap.payment_date = %s 
@@ -353,7 +359,7 @@ and count(aisor.account_invoice_id)>1
                 'ret_ext': line2['ret_ext'],
                 'residual': line2['invoice_amount']-line2['payment_amount'],
                 'journal': line2['journal'],
-                'date_payment': line2['payment_date_real'],
+                'date_payment': line2['payment_date_real'] + '('+line2['payment_date_real']+')',
             }
             invoice_day_lines.append(vals)
         return invoice_day_lines
@@ -377,6 +383,7 @@ sum(ai.amount_total_signed) as invoice_amount,
 sum(apx.amount) as payment_amount, 
 coalesce(sum(aipr.amount),0) as xpayment_amount, 
 coalesce(sum(xaipr.amount),0) as ret_ext, coalesce(string_agg(aipr.journal,','),'') as journal, coalesce(string_agg(aipr.payment_date_real,','),'') as payment_date_real, 
+coalesce(string_agg(aipr.payment_document,','),'') as payment_document, 
 sum(xxaipr.amount) as payment_day 
 from account_invoice ai 
 inner join res_partner rp 
@@ -393,6 +400,7 @@ on apx.invoice_id = ai.id
 left join ( 
 	select distinct aipr3.invoice_id as invoice_id, 
 	sum(ap.amount) as amount, string_agg(aj.name,',') as journal, 
+    string_agg(ap.description_gp,',') as payment_document, 
 	string_agg(to_char(ap.payment_date_real,'dd-mm-yy'),',') as payment_date_real 
 	from account_invoice_payment_rel aipr3
 	inner join account_payment ap 
@@ -443,7 +451,7 @@ and count(aisor.account_invoice_id)=1 """
                 'ret_ext': line['ret_ext'],
                 'journal': line['journal'],
                 'residual': line['invoice_amount']-line['payment_amount'],
-                'date_payment': line['payment_date_real'],
+                'date_payment': line['payment_date_real'] + '('+line['payment_date_real']+')',
             }
             invoice_day_lines.append(vals)
         query2 = """
@@ -453,6 +461,7 @@ string_agg(rp.name,',') as partner, coalesce(sum(so.amount_total),0) as sale_amo
 (sum(apx.amount)/count(aisor.account_invoice_id)) as payment_amount, 
 coalesce((sum(aipr.amount)/count(aisor.account_invoice_id)),0) as xpayment_amount, 
 coalesce(sum(xaipr.amount),0) as ret_ext, coalesce(string_agg(aipr.journal,','),'') as journal, coalesce(string_agg(aipr.payment_date_real,','),'') as payment_date_real, 
+coalesce(string_agg(aipr.payment_document,','),'') as payment_document, 
 sum(xxaipr.amount) as payment_day 
 from account_invoice ai 
 inner join res_partner rp 
@@ -469,6 +478,7 @@ on apx.invoice_id = ai.id
 left join ( 
 	select distinct aipr3.invoice_id as invoice_id, 
 	sum(ap.amount) as amount, string_agg(aj.name,',') as journal, 
+    string_agg(ap.description_gp,',') as payment_document, 
 	string_agg(to_char(ap.payment_date_real,'dd-mm-yy'),',') as payment_date_real 
 	from account_invoice_payment_rel aipr3
 	inner join account_payment ap 
@@ -519,7 +529,7 @@ and count(aisor.account_invoice_id)>1 """
                 'ret_ext': line2['ret_ext'],
                 'journal': line2['journal'],
                 'residual': line2['invoice_amount']-line2['payment_amount'],
-                'date_payment': line2['payment_date_real'],
+                'date_payment': line2['payment_date_real'] + '('+line2['payment_date_real']+')',
             }
             invoice_day_lines.append(vals)
         return invoice_day_lines
