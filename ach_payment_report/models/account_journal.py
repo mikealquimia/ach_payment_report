@@ -7,3 +7,4 @@ class AccountJournal(models.Model):
     _inherit = 'account.journal'
 
     ret_ext = fields.Boolean(string="Ret/Ext")
+    commission = fields.Float(string="Comisión por TC")

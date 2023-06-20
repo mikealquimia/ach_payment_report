@@ -9,6 +9,9 @@
             <xpath expr="//field[@name='type']" position="after">
                 <field name="ret_ext" attrs="{'invisible': [('type', 'not in', ['bank','cash'])]}"/>
             </xpath>
+            <xpath expr="//field[@name='type']" position="after">
+                <field name="commission" widget="percentage" attrs="{'invisible': [('type', '!=', 'bank')]}"/>
+            </xpath>
         </field>
     </record>
 
