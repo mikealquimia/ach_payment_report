@@ -11,6 +11,7 @@
             </xpath>
             <xpath expr="//field[@name='type']" position="after">
                 <field name="commission" widget="percentage" attrs="{'invisible': [('type', '!=', 'bank')]}"/>
+                <field name="resum_report" attrs="{'invisible': [('type', 'not in', ['bank','cash'])]}"/>
             </xpath>
         </field>
     </record>

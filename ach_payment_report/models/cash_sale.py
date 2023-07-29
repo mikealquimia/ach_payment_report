@@ -48,14 +48,14 @@ inner join res_partner rp on rp.id = so.partner_id
 left join ( 
 	select sum(ap.amount) as amou, ap.sale_id, ap.journal_id 
 	from account_payment ap 
-	where ap.state_sale_invoice = 'no_add' and ap.payment_date = %s 
+	where ap.state_sale_invoice = 'no_add' and ap.payment_date = %s and ap.state in ('posted','sent','reconciled') 
 	group by ap.sale_id, ap.journal_id 
 ) as payment_so 
 on payment_so.sale_id = so.id 
 left join ( 
 	select sum(ap4.amount) as amou, ap4.sale_id 
 	from account_payment ap4 
-	where ap4.state_sale_invoice = 'no_add' and ap4.payment_date <= %s 
+	where ap4.state_sale_invoice = 'no_add' and ap4.payment_date <= %s and ap4.state in ('posted','sent','reconciled') 
 	group by ap4.sale_id 
 ) as payment_so_t 
 on payment_so_t.sale_id = so.id 
@@ -73,17 +73,17 @@ left join (
 	left join ( 
 		select ap3.amount as amou, ap3.id 
 		from account_payment ap3 
-		where ap3.payment_date <= %s 
+		where ap3.payment_date <= %s and ap3.state in ('posted','sent','reconciled') 
 		group by ap3.id 
 		) as payment_ai3 
 	on payment_ai3.id = aipr.payment_id 
 	left join ( 
 		select ap2.amount as amou, ap2.id, ap2.journal_id as journal_id2, ap2.payment_date_real as payment_date_real, 
-        concat(ap2.description_gp,'-',rc.symbol,ap2.amount) as payment_document 
+        concat(ap2.deposit_number,'-',rc.symbol,ap2.amount) as payment_document 
 		from account_payment ap2 
         inner join res_currency rc 
         on rc.id = ap2.currency_id 
-		where ap2.payment_date = %s 
+		where ap2.payment_date = %s and ap2.state in ('posted','sent','reconciled') 
 		group by ap2.id, rc.symbol 
 		) as payment_ai 
 	on payment_ai.id = aipr.payment_id 
@@ -93,7 +93,7 @@ left join (
 		where aj2.ret_ext is null
 		) as journals2 
 	on journals2.id = payment_ai.journal_id2 
-	where ai.journal_id in %s 
+	where ai.journal_id in %s and ai.state in ('open','in_payment','paid')
     group by ai.number, ai.id 
 	) as invoices 
 on invoices.id = aisor.account_invoice_id 
@@ -104,14 +104,14 @@ left join (
 	left join ( 
 		select ap3.amount as amou, ap3.id 
 		from account_payment ap3 
-		where ap3.payment_date <= %s 
+		where ap3.payment_date <= %s and ap3.state in ('posted','sent','reconciled') 
 		group by ap3.id 
 		) as payment_ai3 
 	on payment_ai3.id = aipr.payment_id 
 	left join ( 
 		select ap2.amount as amou, ap2.id, ap2.journal_id as journal_id2 
 		from account_payment ap2 
-		where ap2.payment_date = %s 
+		where ap2.payment_date = %s and ap2.state in ('posted','sent','reconciled') 
 		group by ap2.id 
 		) as payment_ai 
 	on payment_ai.id = aipr.payment_id 
@@ -121,7 +121,7 @@ left join (
 		where aj2.ret_ext = true 
 		) as journals2 
 	on journals2.id = payment_ai.journal_id2 
-	where ai.journal_id in %s 
+	where ai.journal_id in %s and ai.state in ('open','in_payment','paid')
     group by ai.number, ai.id 
 	) as xinvoices 
 on xinvoices.id = aisor.account_invoice_id 
@@ -171,7 +171,7 @@ left join (
 	sum(ap2.amount) as amount
 	from account_invoice_payment_rel aipr 
 	inner join account_payment ap2
-	on ap2.id = aipr.payment_id and ap2.payment_date <= %s 
+	on ap2.id = aipr.payment_id and ap2.payment_date <= %s and ap2.state in ('posted','sent','reconciled') 
 	group by aipr.invoice_id  
 ) as apx
 on apx.invoice_id = ai.id 
@@ -224,7 +224,7 @@ left join (
 	sum(ap2.amount) as amount
 	from account_invoice_payment_rel aipr 
 	inner join account_payment ap2
-	on ap2.id = aipr.payment_id and ap2.payment_date <= %s 
+	on ap2.id = aipr.payment_id and ap2.payment_date <= %s and ap2.state in ('posted','sent','reconciled') 
 	group by aipr.invoice_id  
 ) as apx
 on apx.invoice_id = ai.id 
@@ -232,10 +232,10 @@ left join (
 	select distinct aipr3.invoice_id as invoice_id, 
 	sum(ap.amount) as amount, string_agg(aj.name,',') as journal, 
 	string_agg(to_char(ap.payment_date_real,'dd-mm-yy'),',') as payment_date_real, 
-    string_agg(concat(ap.description_gp,'-',rc.symbol,ap.amount),',') as payment_document 
+    string_agg(concat(ap.deposit_number,'-',rc.symbol,ap.amount),',') as payment_document 
 	from account_invoice_payment_rel aipr3
 	inner join account_payment ap 
-	on ap.id = aipr3.payment_id and ap.payment_date = %s 
+	on ap.id = aipr3.payment_id and ap.payment_date = %s and ap.state in ('posted','sent','reconciled') 
     inner join res_currency rc 
     on rc.id = ap.currency_id 
 	inner join account_journal aj 
@@ -248,7 +248,7 @@ left join (
 	sum(ap.amount) as amount 
 	from account_invoice_payment_rel aipr3
 	inner join account_payment ap 
-	on ap.id = aipr3.payment_id and ap.payment_date = %s 
+	on ap.id = aipr3.payment_id and ap.payment_date = %s and ap.state in ('posted','sent','reconciled') 
 	inner join account_journal aj 
 	on aj.id = ap.journal_id and aj.ret_ext = true 
 	group by aipr3.invoice_id 
@@ -259,7 +259,7 @@ left join (
 	sum(ap.amount) as amount 
 	from account_invoice_payment_rel aipr3
 	inner join account_payment ap 
-	on ap.id = aipr3.payment_id and ap.payment_date = %s 
+	on ap.id = aipr3.payment_id and ap.payment_date = %s and ap.state in ('posted','sent','reconciled') 
 	group by aipr3.invoice_id 
 ) as xxaipr 
 on xxaipr.invoice_id = ai.id 
@@ -267,7 +267,7 @@ inner join account_invoice_sale_order_rel aisor
 on aisor.account_invoice_id = ai.id 
 inner join sale_order so 
 on so.id = aisor.sale_order_id and so.confirmation_date < %s 
-where ai.date_invoice <= %s and ai.journal_id in %s 
+where ai.date_invoice <= %s and ai.journal_id in %s and ai.state in ('open','in_payment','paid')
 group by ai.number 
 having sum(apx.amount) < sum(ai.amount_total_signed) and sum(xxaipr.amount) > 0 
 and count(aisor.account_invoice_id)=1 
@@ -306,7 +306,7 @@ left join (
 	sum(ap2.amount) as amount
 	from account_invoice_payment_rel aipr 
 	inner join account_payment ap2
-	on ap2.id = aipr.payment_id and ap2.payment_date <= %s 
+	on ap2.id = aipr.payment_id and ap2.payment_date <= %s and ap2.state in ('posted','sent','reconciled') 
 	group by aipr.invoice_id  
 ) as apx
 on apx.invoice_id = ai.id 
@@ -314,10 +314,10 @@ left join (
 	select distinct aipr3.invoice_id as invoice_id, 
 	sum(ap.amount) as amount, string_agg(aj.name,',') as journal, 
 	string_agg(to_char(ap.payment_date_real,'dd-mm-yy'),',') as payment_date_real, 
-    string_agg(concat(ap.description_gp,'-',rc.symbol,ap.amount),',') as payment_document 
+    string_agg(concat(ap.deposit_number,'-',rc.symbol,ap.amount),',') as payment_document 
 	from account_invoice_payment_rel aipr3
 	inner join account_payment ap 
-	on ap.id = aipr3.payment_id and ap.payment_date = %s 
+	on ap.id = aipr3.payment_id and ap.payment_date = %s and ap.state in ('posted','sent','reconciled') 
     inner join res_currency rc 
     on rc.id = ap.currency_id 
 	inner join account_journal aj 
@@ -330,7 +330,7 @@ left join (
 	sum(ap.amount) as amount 
 	from account_invoice_payment_rel aipr3
 	inner join account_payment ap 
-	on ap.id = aipr3.payment_id and ap.payment_date = %s 
+	on ap.id = aipr3.payment_id and ap.payment_date = %s and ap.state in ('posted','sent','reconciled') 
 	inner join account_journal aj 
 	on aj.id = ap.journal_id and aj.ret_ext = true 
 	group by aipr3.invoice_id 
@@ -341,7 +341,7 @@ left join (
 	sum(ap.amount) as amount 
 	from account_invoice_payment_rel aipr3
 	inner join account_payment ap 
-	on ap.id = aipr3.payment_id and ap.payment_date = %s 
+	on ap.id = aipr3.payment_id and ap.payment_date = %s and ap.state in ('posted','sent','reconciled') 
 	group by aipr3.invoice_id 
 ) as xxaipr 
 on xxaipr.invoice_id = ai.id 
@@ -349,7 +349,7 @@ inner join account_invoice_sale_order_rel aisor
 on aisor.account_invoice_id = ai.id 
 inner join sale_order so 
 on so.id = aisor.sale_order_id and so.confirmation_date < %s 
-where ai.date_invoice <= %s and ai.journal_id in %s 
+where ai.date_invoice <= %s and ai.journal_id in %s and ai.state in ('open','in_payment','paid')
 group by ai.number 
 having sum(apx.amount) < sum(ai.amount_total_signed) and sum(xxaipr.amount) > 0 
 and count(aisor.account_invoice_id)>1 
@@ -402,18 +402,18 @@ left join (
 	sum(ap2.amount) as amount
 	from account_invoice_payment_rel aipr 
 	inner join account_payment ap2
-	on ap2.id = aipr.payment_id and ap2.payment_date <= %s 
+	on ap2.id = aipr.payment_id and ap2.payment_date <= %s and ap2.state in ('posted','sent','reconciled') 
 	group by aipr.invoice_id  
 ) as apx
 on apx.invoice_id = ai.id 
 left join ( 
 	select distinct aipr3.invoice_id as invoice_id, 
 	sum(ap.amount) as amount, string_agg(aj.name,',') as journal, 
-    string_agg(concat(ap.description_gp,'-',rc.symbol,ap.amount),',') as payment_document, 
+    string_agg(concat(ap.deposit_number,'-',rc.symbol,ap.amount),',') as payment_document, 
 	string_agg(to_char(ap.payment_date_real,'dd-mm-yy'),',') as payment_date_real 
 	from account_invoice_payment_rel aipr3
 	inner join account_payment ap 
-	on ap.id = aipr3.payment_id and ap.payment_date = %s 
+	on ap.id = aipr3.payment_id and ap.payment_date = %s and ap.state in ('posted','sent','reconciled') 
     inner join res_currency rc 
     on rc.id = ap.currency_id 
 	inner join account_journal aj 
@@ -426,7 +426,7 @@ left join (
 	sum(ap.amount) as amount 
 	from account_invoice_payment_rel aipr3
 	inner join account_payment ap 
-	on ap.id = aipr3.payment_id and ap.payment_date = %s 
+	on ap.id = aipr3.payment_id and ap.payment_date = %s and ap.state in ('posted','sent','reconciled') 
 	inner join account_journal aj 
 	on aj.id = ap.journal_id and aj.ret_ext = true 
 	group by aipr3.invoice_id 
@@ -437,7 +437,7 @@ left join (
 	sum(ap.amount) as amount 
 	from account_invoice_payment_rel aipr3
 	inner join account_payment ap 
-	on ap.id = aipr3.payment_id and ap.payment_date = %s 
+	on ap.id = aipr3.payment_id and ap.payment_date = %s and ap.state in ('posted','sent','reconciled') 
 	group by aipr3.invoice_id 
 ) as xxaipr 
 on xxaipr.invoice_id = ai.id 
@@ -445,7 +445,7 @@ inner join account_invoice_sale_order_rel aisor
 on aisor.account_invoice_id = ai.id 
 inner join sale_order so 
 on so.id = aisor.sale_order_id and so.confirmation_date < %s 
-where ai.date_invoice <= %s and ai.journal_id in %s 
+where ai.date_invoice <= %s and ai.journal_id in %s and ai.state in ('open','in_payment','paid')
 group by ai.number 
 having sum(apx.amount) = sum(ai.amount_total_signed) and sum(xxaipr.amount) > 0 
 and count(aisor.account_invoice_id)=1 """
@@ -483,18 +483,18 @@ left join (
 	sum(ap2.amount) as amount
 	from account_invoice_payment_rel aipr 
 	inner join account_payment ap2
-	on ap2.id = aipr.payment_id and ap2.payment_date <= %s 
+	on ap2.id = aipr.payment_id and ap2.payment_date <= %s and ap2.state in ('posted','sent','reconciled') 
 	group by aipr.invoice_id  
 ) as apx
 on apx.invoice_id = ai.id 
 left join ( 
 	select distinct aipr3.invoice_id as invoice_id, 
 	sum(ap.amount) as amount, string_agg(aj.name,',') as journal, 
-    string_agg(concat(ap.description_gp,'-',rc.symbol,ap.amount),',') as payment_document, 
+    string_agg(concat(ap.deposit_number,'-',rc.symbol,ap.amount),',') as payment_document, 
 	string_agg(to_char(ap.payment_date_real,'dd-mm-yy'),',') as payment_date_real 
 	from account_invoice_payment_rel aipr3
 	inner join account_payment ap 
-	on ap.id = aipr3.payment_id and ap.payment_date = %s 
+	on ap.id = aipr3.payment_id and ap.payment_date = %s and ap.state in ('posted','sent','reconciled') 
     inner join res_currency rc 
     on rc.id = ap.currency_id 
 	inner join account_journal aj 
@@ -507,7 +507,7 @@ left join (
 	sum(ap.amount) as amount 
 	from account_invoice_payment_rel aipr3
 	inner join account_payment ap 
-	on ap.id = aipr3.payment_id and ap.payment_date = %s 
+	on ap.id = aipr3.payment_id and ap.payment_date = %s and ap.state in ('posted','sent','reconciled') 
 	inner join account_journal aj 
 	on aj.id = ap.journal_id and aj.ret_ext = true 
 	group by aipr3.invoice_id 
@@ -518,7 +518,7 @@ left join (
 	sum(ap.amount) as amount 
 	from account_invoice_payment_rel aipr3
 	inner join account_payment ap 
-	on ap.id = aipr3.payment_id and ap.payment_date = %s 
+	on ap.id = aipr3.payment_id and ap.payment_date = %s and ap.state in ('posted','sent','reconciled') 
 	group by aipr3.invoice_id 
 ) as xxaipr 
 on xxaipr.invoice_id = ai.id 
@@ -526,7 +526,7 @@ inner join account_invoice_sale_order_rel aisor
 on aisor.account_invoice_id = ai.id 
 inner join sale_order so 
 on so.id = aisor.sale_order_id and so.confirmation_date < %s 
-where ai.date_invoice <= %s and ai.journal_id in %s 
+where ai.date_invoice <= %s and ai.journal_id in %s and ai.state in ('open','in_payment','paid')
 group by ai.number 
 having sum(apx.amount) = sum(ai.amount_total_signed) and sum(xxaipr.amount) > 0 
 and count(aisor.account_invoice_id)>1 """
@@ -562,13 +562,93 @@ and count(aisor.account_invoice_id)>1 """
         date_q_start = datetime.strptime(str_date_start, '%Y-%m-%d %H:%M:%S')
         date_q_stop = datetime.strptime(str_date_stop, '%Y-%m-%d %H:%M:%S')
         query = """
-select distinct aj.name as journal, ap.amount as amount, coalesce(aj.commission,0) as percentage, 
+select distinct aj.name as journal, ap.amount as amount, coalesce(aj.commission,0) as percentage 
+from account_journal aj 
+inner join (
+	select ap2.journal_id as journal_id, sum(ap2.amount) as amount 
+	from account_payment ap2 
+    inner join account_invoice_payment_rel aipr 
+	on aipr.payment_id = ap2.id 
+	inner join account_invoice ai 
+	on ai.id = aipr.invoice_id and ai.state in ('open','in_payment','paid')
+	inner join account_journal aj2 
+	on aj2.id = ai.journal_id and aj2.id in %s 
+	where ap2.payment_date = %s and ap2.state in ('posted','sent','reconciled') 
+	group by ap2.journal_id 
+) as ap 
+on aj.id = ap.journal_id 
+group by aj.name, ap.amount, aj.commission """
+        params = (tuple(journals),date_q)
+        self.env.cr.execute(query, params)
+        for line in self.env.cr.dictfetchall():
+            vals = {
+                'journal': line['journal'],
+                'amount': line['amount'],
+                'commission': round((line['amount']*line['percentage']),3) if line['percentage'] != 0 else 0,
+                'percentage': round((line['percentage']*100),3),
+            }
+            detail_journal_amount.append(vals)
+        return detail_journal_amount
+
+    def payment_detail(self, date):
+        detail_journal_amount = []
+        journals = [x.id for x in self.journal_ids]
+        hour_tz = self.get_hour_tz(self.env.user.tz)
+        date_start_tz = datetime(date.year, date.month, date.day, 0, 0, 0) + timedelta(hours=hour_tz)
+        date_stop_tz = datetime(date.year, date.month, date.day, 23, 59, 59) + timedelta(hours=hour_tz)
+        date_str = '%s-%s-%s' % (date_start_tz.year, date_start_tz.month, date_start_tz.day)
+        str_date_start = '%s-%s-%s %s:%s:%s' % (date_start_tz.year, date_start_tz.month, date_start_tz.day, date_start_tz.hour, date_start_tz.minute, date_start_tz.second)
+        str_date_stop = '%s-%s-%s %s:%s:%s' % (date_stop_tz.year, date_stop_tz.month, date_stop_tz.day, date_stop_tz.hour, date_stop_tz.minute, date_stop_tz.second)
+        date_q = datetime.strptime(date_str, '%Y-%m-%d')
+        date_q_start = datetime.strptime(str_date_start, '%Y-%m-%d %H:%M:%S')
+        date_q_stop = datetime.strptime(str_date_stop, '%Y-%m-%d %H:%M:%S')
+        query_resum = """
+select distinct aj.name as journal, sum(ap.amount) as amount, coalesce(aj.commission,0) as percentage, 
 coalesce(string_agg(ap.description,','),'') as description, string_agg(ap.sale_name,',' ) as sale,
 ap.payment_date_real as date 
 from account_journal aj 
 inner join (
+	select ap2.journal_id as journal_id, ap2.amount as amount, 
+	coalesce(string_agg(ap2.deposit_number,','),'') as description,
+	string_agg(so.name,',') as sale_name, ap2.payment_date_real as payment_date_real
+	from account_payment ap2 
+    inner join account_invoice_payment_rel aipr 
+	on aipr.payment_id = ap2.id 
+	inner join account_invoice ai 
+	on ai.id = aipr.invoice_id and ai.state in ('open','in_payment','paid') 
+	inner join account_invoice_sale_order_rel aisor
+	on aisor.account_invoice_id = ai.id 
+	left join sale_order so 
+	on so.id = aisor.sale_order_id 
+	inner join account_journal aj2 
+	on aj2.id = ai.journal_id and aj2.id in %s 
+	where ap2.payment_date = %s and ap2.state in ('posted','sent','reconciled') 
+	group by ap2.journal_id, ap2.payment_date_real, ap2.amount 
+) as ap 
+on aj.id = ap.journal_id 
+where aj.resum_report = true 
+group by aj.name, aj.commission, ap.payment_date_real """
+        params = (tuple(journals),date_q)
+        self.env.cr.execute(query_resum, params)
+        for line in self.env.cr.dictfetchall():
+            vals = {
+                'journal': line['journal'],
+                'amount': line['amount'],
+                'commission': round((line['amount']*(line['percentage']/100))*100,3) if line['percentage'] != 0 else 0,
+                'percentage': round(line['percentage']*100,3),
+                'description': line['description'],
+                'sales': line['sale'],
+                'date': line['date'],
+            }
+            detail_journal_amount.append(vals)
+        query_no_resum = """
+select distinct aj.name as journal, ap.amount as amount, coalesce(aj.commission,0) as percentage, 
+ap.description as description, string_agg(ap.sale_name,',' ) as sale,
+ap.payment_date_real as date 
+from account_journal aj 
+inner join (
 	select ap2.journal_id as journal_id, sum(ap2.amount) as amount, 
-	coalesce(string_agg(ap2.description_gp,','),'') as description,
+	coalesce(ap2.deposit_number,'') as description,
 	string_agg(so.name,',') as sale_name, ap2.payment_date_real as payment_date_real
 	from account_payment ap2 
     inner join account_invoice_payment_rel aipr 
@@ -581,18 +661,19 @@ inner join (
 	on so.id = aisor.sale_order_id 
 	inner join account_journal aj2 
 	on aj2.id = ai.journal_id and aj2.id in %s 
-	where ap2.payment_date = %s 
-	group by ap2.journal_id, ap2.payment_date_real
+	where ap2.payment_date = %s and ap2.state in ('posted','sent','reconciled') 
+	group by ap2.journal_id, ap2.payment_date_real, ap2.deposit_number 
 ) as ap 
 on aj.id = ap.journal_id 
-group by aj.name, ap.amount, aj.commission, ap.payment_date_real """
-        params = (tuple(journals),date_q)
-        self.env.cr.execute(query, params)
+where aj.resum_report is null 
+group by aj.name, ap.amount, aj.commission, ap.payment_date_real, ap.description"""
+        params_no = (tuple(journals),date_q)
+        self.env.cr.execute(query_no_resum, params_no)
         for line in self.env.cr.dictfetchall():
             vals = {
                 'journal': line['journal'],
                 'amount': line['amount'],
-                'commission': round((line['amount']*(line['percentage']/100)),2) if line['percentage'] != 0 else 0,
+                'commission': round((line['amount']*(line['percentage']/100)),3)*100 if line['percentage'] != 0 else 0,
                 'percentage': line['percentage'],
                 'description': line['description'],
                 'sales': line['sale'],

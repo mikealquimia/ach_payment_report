@@ -8,3 +8,4 @@ class AccountJournal(models.Model):
 
     ret_ext = fields.Boolean(string="Ret/Ext")
     commission = fields.Float(string="Comisión por TC")
+    resum_report = fields.Boolean(string="Agrupado por forma de pago")
