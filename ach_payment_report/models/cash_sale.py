@@ -544,7 +544,7 @@ and count(aisor.account_invoice_id)>1 """
                 'journal': line2['journal'],
                 'residual': line2['invoice_amount']-line2['payment_amount'],
                 'date_payment': line2['payment_date_real'],
-                'payment_document':line['payment_document'],
+                'payment_document':line2['payment_document'],
             }
             invoice_day_lines.append(vals)
         return invoice_day_lines
